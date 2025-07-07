@@ -41,4 +41,7 @@ Thumbs.db
 
 # Static files (quando você configurar)
 staticfiles/
-static/ 
+static/
+
+# Arquivos de desenvolvimento local
+CHECKLIST.md 
