@@ -5,8 +5,8 @@ services:
     image: postgres:15
     environment:
       POSTGRES_DB: tarefas
-      POSTGRES_USER: POSTGRES_USER
-      POSTGRESS_PASSWORD: senha123
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: senha123
     ports:
       - "5432:5432"
   web:
