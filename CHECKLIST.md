@@ -12,8 +12,8 @@
 
 ## 2. CRUD de Tarefas + Autenticação
 - [x] Criar modelo de Tarefa no Django
-- [ ] Implementar endpoints CRUD (Create, Read, Update, Delete) para tarefas
-- [ ] Configurar autenticação JWT no backend
+- [x] Implementar endpoints CRUD (Create, Read, Update, Delete) para tarefas
+- [x] Configurar autenticação JWT no backend
 - [ ] Implementar login no frontend
 - [ ] Implementar listagem de tarefas no frontend
 - [ ] Adicionar pelo menos 1 teste automatizado no backend (ex: criação de tarefa)
@@ -48,6 +48,32 @@
   - [ ] Links de deploy
   - [ ] Prints ou GIFs das principais telas
 - [ ] Fazer revisão final do código e documentação
+
+---
+
+---
+
+## 📊 Status Detalhado
+
+### ✅ Implementado e Testado:
+- **Backend Django**: Modelo Task com campos (title, description, status, created_at, user)
+- **API REST**: Endpoints CRUD completos (/api/tasks/)
+- **Autenticação JWT**: Login (/api/token/), refresh token, proteção de endpoints
+- **Docker**: PostgreSQL + Django rodando em containers
+- **Admin Django**: Interface administrativa funcional
+- **Usuários de teste**: admin/admin123 e testuser/senha123
+
+### 🔧 Configurações Técnicas:
+- **JWT**: Access token (60min), Refresh token (1 dia), rotação automática
+- **Banco**: PostgreSQL com volumes persistentes
+- **Segurança**: Todos os endpoints protegidos por autenticação
+- **CORS**: Configurado para desenvolvimento
+
+### 🎯 Próximos Passos Prioritários:
+1. **Frontend Next.js** (pasta vazia - precisa ser criado)
+2. **Testes automatizados** (0 testes implementados)
+3. **Deploy** (não configurado)
+4. **Funcionalidades extras** (frases motivacionais, dashboard)
 
 ---
 
