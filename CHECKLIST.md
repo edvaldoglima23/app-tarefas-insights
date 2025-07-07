@@ -3,9 +3,10 @@
 ## 1. Setup Inicial
 - [x] Criar repositório Git e README inicial
 - [x] Configurar backend Django + Docker + PostgreSQL
+- [x] Subir código para repositório remoto (GitHub)
 - [ ] Configurar frontend Next.js
 - [ ] Subir deploy inicial (Hello World) no Railway/Heroku (backend) e Vercel (frontend)
-- [ ] Documentar instruções básicas de setup no README
+- [x] Documentar instruções básicas de setup no README
 
 ---
 
