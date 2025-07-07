@@ -11,7 +11,7 @@
 ---
 
 ## 2. CRUD de Tarefas + Autenticação
-- [ ] Criar modelo de Tarefa no Django
+- [x] Criar modelo de Tarefa no Django
 - [ ] Implementar endpoints CRUD (Create, Read, Update, Delete) para tarefas
 - [ ] Configurar autenticação JWT no backend
 - [ ] Implementar login no frontend
