@@ -1,0 +1,26 @@
+version: '3'
+
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: tarefas
+      POSTGRES_USER: POSTGRES_USER
+      POSTGRESS_PASSWORD: senha123
+    ports:
+      - "5432:5432"
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      -  db
+    environment:
+      - DJANGO_DB_HOST=db
+      - DJANGO_DB_NAME=tarefas
+      - DJANGO_DB_USER=user
+      - DJANGO_DB_PASSWORD=senha123
+      
