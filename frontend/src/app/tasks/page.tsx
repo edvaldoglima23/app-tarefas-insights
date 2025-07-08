@@ -2,170 +2,108 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import axios from 'axios'
-
-interface Task {
-  id: number
-  title: string
-  description: string
-  status: string
-  created_at: string
-}
-
-interface Statistics {
-  total_tasks: number
-  completed_tasks: number
-  pending_tasks: number
-  completion_rate: number
-  tasks_today: number
-  tasks_this_week: number
-  tasks_this_month: number
-  completed_today: number
-}
+import { useAuthStore } from '@/stores/authStore'
+import { useTaskStore } from '@/stores/taskStore'
+import type { Task } from '@/types'
 
 export default function TasksPage() {
-  const [tasks, setTasks] = useState<Task[]>([])
-  const [stats, setStats] = useState<Statistics | null>(null)
   const [newTask, setNewTask] = useState('')
   const [newDescription, setNewDescription] = useState('')
   const [editingTask, setEditingTask] = useState<Task | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
+
+  
   const router = useRouter()
+  const { isAuthenticated, logout } = useAuthStore()
+  const {
+    tasks,
+    statistics: stats,
+    quote,
+    filters,
+    searchResults,
+    loading,
+    error,
+    fetchTasks,
+    searchTasks,
+    createTask,
+    updateTask,
+    deleteTask,
+    toggleTaskStatus,
+    fetchStatistics,
+    fetchQuote,
+    setFilters,
+    clearFilters,
+    clearError
+  } = useTaskStore()
 
-  // Buscar tarefas e estatísticas quando a página carregar
   useEffect(() => {
-    fetchData()
-  }, [])
-
-  const fetchData = async () => {
-    await Promise.all([fetchTasks(), fetchStatistics()])
-  }
-
-  const fetchTasks = async () => {
-    try {
-      const token = localStorage.getItem('token')
-      if (!token) {
-        router.push('/')
-        return
-      }
-
-      const response = await axios.get('http://localhost:8000/api/tasks/', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
-
-      setTasks(response.data)
-    } catch (err) {
-      setError('Erro ao carregar tarefas')
-      if (axios.isAxiosError(err) && err.response?.status === 401) {
-        localStorage.removeItem('token')
-        router.push('/')
-      }
-    } finally {
-      setLoading(false)
+    if (!isAuthenticated) {
+      router.push('/')
+      return
     }
-  }
-
-  const fetchStatistics = async () => {
-    try {
-      const token = localStorage.getItem('token')
-      if (!token) return
-
-      const response = await axios.get('http://localhost:8000/api/tasks/statistics/', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
-
-      setStats(response.data)
-    } catch (err) {
-      console.log('Erro ao carregar estatísticas:', err)
+    
+    const initializeData = async () => {
+      await Promise.all([fetchTasks(), fetchStatistics(), fetchQuote()])
     }
+    
+    initializeData()
+  }, [isAuthenticated, router])
+
+  const handleSearch = () => {
+    searchTasks(filters)
   }
+
+  const handleClearFilters = () => {
+    clearFilters()
+  }
+
+
 
   const handleAddTask = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!newTask.trim()) return
 
-    try {
-      const token = localStorage.getItem('token')
-      const response = await axios.post('http://localhost:8000/api/tasks/', {
-        title: newTask,
-        description: newDescription,
-        status: 'pending'
-      }, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
-
-      setTasks([...tasks, response.data])
-      setNewTask('')
-      setNewDescription('')
-      // Atualizar estatísticas após criar tarefa
-      fetchStatistics()
-    } catch (err) {
-      setError('Erro ao adicionar tarefa')
-    }
+    await createTask({
+      title: newTask,
+      description: newDescription,
+      status: 'pending'
+    })
+    
+    setNewTask('')
+    setNewDescription('')
   }
 
-  // UPDATE - Atualizar tarefa
   const handleUpdateTask = async (task: Task) => {
-    try {
-      const token = localStorage.getItem('token')
-      const response = await axios.put(`http://localhost:8000/api/tasks/${task.id}/`, {
-        title: task.title,
-        description: task.description,
-        status: task.status
-      }, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
-
-      setTasks(tasks.map(t => t.id === task.id ? response.data : t))
-      setEditingTask(null)
-      // Atualizar estatísticas após atualizar tarefa
-      fetchStatistics()
-    } catch (err) {
-      setError('Erro ao atualizar tarefa')
-    }
+    await updateTask(task.id, {
+      title: task.title,
+      description: task.description,
+      status: task.status
+    })
+    setEditingTask(null)
   }
 
-  // DELETE - Excluir tarefa
   const handleDeleteTask = async (taskId: number) => {
     if (!confirm('Tem certeza que deseja excluir esta tarefa?')) return
-
-    try {
-      const token = localStorage.getItem('token')
-      await axios.delete(`http://localhost:8000/api/tasks/${taskId}/`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
-
-      setTasks(tasks.filter(t => t.id !== taskId))
-      // Atualizar estatísticas após excluir tarefa
-      fetchStatistics()
-    } catch (err) {
-      setError('Erro ao excluir tarefa')
-    }
+    await deleteTask(taskId)
   }
 
-  // Alternar status da tarefa
   const handleToggleStatus = async (task: Task) => {
-    const newStatus = task.status === 'pending' ? 'completed' : 'pending'
-    await handleUpdateTask({ ...task, status: newStatus })
+    console.log('🔄 Toggle iniciado para tarefa:', task.id, 'Status atual:', task.status)
+    
+    try {
+      await toggleTaskStatus(task)
+      console.log('✅ Toggle concluído com sucesso!')
+    } catch (error) {
+      console.error('❌ Erro no toggle:', error)
+      alert(`Erro ao alterar status: ${error}`)
+    }
   }
 
   const handleLogout = () => {
-    localStorage.removeItem('token')
+    logout()
     router.push('/')
   }
 
-  if (loading) {
+  if (loading.tasks) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-xl">Carregando...</div>
@@ -174,229 +112,329 @@ export default function TasksPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-6xl mx-auto px-4">
-        {/* Header */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <div className="flex justify-between items-center">
-            <h1 className="text-3xl font-bold text-gray-900">
-              🎯 Minhas Tarefas & Dashboard
-            </h1>
+    <>
+      {/* Barra de Frase Motivacional */}
+      {quote && (
+        <div className="fixed top-0 left-0 w-full z-40 bg-purple-50 border-b border-purple-200 text-center flex items-center justify-center py-2 px-4 shadow-sm">
+          <span className="text-purple-700 text-base font-medium flex items-center gap-2">
+            <span className="text-lg">💡</span>
+            <span className="italic max-w-[60vw] truncate">&ldquo;{quote.content}&rdquo;</span>
+            <span className="text-sm text-purple-500 ml-2">— {quote.author}</span>
             <button
-              onClick={handleLogout}
-              className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+              onClick={fetchQuote}
+              disabled={loading.quote}
+              className="ml-4 px-2 py-1 rounded hover:bg-purple-100 text-purple-700 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Nova frase"
             >
-              Sair
+              {loading.quote ? '⏳' : '🔄'}
             </button>
-          </div>
+          </span>
         </div>
+      )}
 
-        {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-            {error}
-          </div>
-        )}
-
-        {/* Seção de Tarefas */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">📋 Gerenciar Tarefas</h2>
-          
-          {/* Formulário para adicionar tarefa */}
-          <form onSubmit={handleAddTask} className="mb-6">
-            <div className="space-y-4">
-              <div>
-                <input
-                  type="text"
-                  value={newTask}
-                  onChange={(e) => setNewTask(e.target.value)}
-                  placeholder="Título da tarefa..."
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
-                  required
-                />
+      <div className="pt-5">
+        <div className="min-h-screen bg-gray-50 py-8">
+          <div className="max-w-6xl mx-auto px-4">
+            
+            {/* Header */}
+            <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+              <div className="flex justify-between items-center">
+                <h1 className="text-3xl font-bold text-gray-900">
+                  🎯 Minhas Tarefas & Dashboard
+                </h1>
+                <button
+                  onClick={handleLogout}
+                  className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+                >
+                  Sair
+                </button>
               </div>
-              <div>
-                <textarea
-                  value={newDescription}
-                  onChange={(e) => setNewDescription(e.target.value)}
-                  placeholder="Descrição da tarefa..."
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
-                  rows={3}
-                />
-              </div>
-              <button
-                type="submit"
-                className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                Adicionar Tarefa
-              </button>
             </div>
-          </form>
 
-          {/* Lista de tarefas */}
-          <div className="space-y-3">
-            {tasks.length === 0 ? (
-              <div className="text-center text-gray-500 py-8">
-                Nenhuma tarefa encontrada. Crie sua primeira tarefa!
+            {error && (
+              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 flex justify-between items-center">
+                {error}
+                <button onClick={clearError} className="ml-2 text-red-500 hover:text-red-700">✕</button>
               </div>
-            ) : (
-              tasks.map(task => (
-                <div key={task.id} className="p-4 bg-gray-50 rounded-md border">
-                  {editingTask?.id === task.id ? (
-                    // Modo de edição
-                    <div className="space-y-3">
-                      <input
-                        type="text"
-                        value={editingTask.title}
-                        onChange={(e) => setEditingTask({...editingTask, title: e.target.value})}
-                        className="w-full px-3 py-2 border rounded text-gray-900"
-                      />
-                      <textarea
-                        value={editingTask.description}
-                        onChange={(e) => setEditingTask({...editingTask, description: e.target.value})}
-                        className="w-full px-3 py-2 border rounded text-gray-900"
-                        rows={2}
-                      />
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => handleUpdateTask(editingTask)}
-                          className="px-3 py-1 bg-green-500 text-white text-sm rounded hover:bg-green-600"
-                        >
-                          Salvar
-                        </button>
-                        <button
-                          onClick={() => setEditingTask(null)}
-                          className="px-3 py-1 bg-gray-500 text-white text-sm rounded hover:bg-gray-600"
-                        >
-                          Cancelar
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    // Modo de visualização
-                    <>
-                      <h3 className="font-semibold text-gray-900">{task.title}</h3>
-                      {task.description && (
-                        <p className="text-gray-600 text-sm mt-1">{task.description}</p>
-                      )}
-                      <div className="mt-3 flex items-center justify-between">
-                        <span className={`px-2 py-1 rounded text-xs ${
-                          task.status === 'completed' 
-                            ? 'bg-green-100 text-green-800' 
-                            : 'bg-yellow-100 text-yellow-800'
-                        }`}>
-                          {task.status === 'completed' ? 'Concluída' : 'Pendente'}
-                        </span>
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => handleToggleStatus(task)}
-                            className={`px-3 py-1 text-white text-sm rounded ${
-                              task.status === 'completed'
-                                ? 'bg-yellow-500 hover:bg-yellow-600'
-                                : 'bg-green-500 hover:bg-green-600'
-                            }`}
-                          >
-                            {task.status === 'completed' ? 'Reabrir' : 'Concluir'}
-                          </button>
-                          <button
-                            onClick={() => setEditingTask(task)}
-                            className="px-3 py-1 bg-blue-500 text-white text-sm rounded hover:bg-blue-600"
-                          >
-                            Editar
-                          </button>
-                          <button
-                            onClick={() => handleDeleteTask(task.id)}
-                            className="px-3 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600"
-                          >
-                            Excluir
-                          </button>
-                        </div>
-                      </div>
-                      <div className="text-xs text-gray-500 mt-2">
-                        {new Date(task.created_at).toLocaleDateString('pt-BR')}
-                      </div>
-                    </>
-                  )}
+            )}
+
+            {/* Gerenciar Tarefas */}
+            <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">📋 Gerenciar Tarefas</h2>
+              
+              {/* Formulário Nova Tarefa */}
+              <form onSubmit={handleAddTask} className="mb-6">
+                <div className="space-y-4">
+                  <div>
+                    <input
+                      type="text"
+                      value={newTask}
+                      onChange={(e) => setNewTask(e.target.value)}
+                      placeholder="Título da tarefa..."
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <textarea
+                      value={newDescription}
+                      onChange={(e) => setNewDescription(e.target.value)}
+                      placeholder="Descrição (opcional)..."
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+                      rows={3}
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={loading.creating}
+                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
+                  >
+                    {loading.creating ? 'Adicionando...' : 'Adicionar Tarefa'}
+                  </button>
                 </div>
-              ))
+              </form>
+
+              {/* Filtros e Busca */}
+              <div className="bg-gray-50 rounded-lg p-4 mb-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">🔍 Filtros e Busca</h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Buscar:</label>
+                    <input
+                      type="text"
+                      value={filters.search}
+                      onChange={(e) => setFilters({ search: e.target.value })}
+                      placeholder="Digite para buscar..."
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Status:</label>
+                    <select
+                      value={filters.status}
+                      onChange={(e) => setFilters({ status: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+                    >
+                      <option value="">Todos</option>
+                      <option value="pending">Pendente</option>
+                      <option value="completed">Concluída</option>
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Data De:</label>
+                    <input
+                      type="date"
+                      value={filters.dateFrom}
+                      onChange={(e) => setFilters({ dateFrom: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Data Até:</label>
+                    <input
+                      type="date"
+                      value={filters.dateTo}
+                      onChange={(e) => setFilters({ dateTo: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Ordenar:</label>
+                    <select
+                      value={filters.ordering}
+                      onChange={(e) => setFilters({ ordering: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+                    >
+                      <option value="-created_at">Data ↓ (Recente)</option>
+                      <option value="created_at">Data ↑ (Antiga)</option>
+                      <option value="title">Título A-Z</option>
+                      <option value="-title">Título Z-A</option>
+                      <option value="status">Status</option>
+                    </select>
+                  </div>
+                </div>
+                
+                <div className="flex gap-2 mt-4">
+                  <button
+                    onClick={handleSearch}
+                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                  >
+                    Buscar
+                  </button>
+                  <button
+                    onClick={handleClearFilters}
+                    className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+                  >
+                    Limpar
+                  </button>
+                </div>
+                
+                {searchResults && (
+                  <div className="mt-4 text-sm text-gray-600">
+                    Encontradas {searchResults.count} tarefas
+                    {Object.values(searchResults.filters_applied).some(v => v) && 
+                      ' com os filtros aplicados'
+                    }
+                  </div>
+                )}
+              </div>
+
+              {/* Lista de Tarefas */}
+              <div className="space-y-4">
+                {tasks.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500">
+                    {searchResults ? 'Nenhuma tarefa encontrada com os filtros aplicados' : 'Nenhuma tarefa criada ainda'}
+                  </div>
+                ) : (
+                  tasks.map((task) => (
+                    <div key={task.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                      {editingTask?.id === task.id ? (
+                        <div className="space-y-3">
+                          <input
+                            type="text"
+                            value={editingTask.title}
+                            onChange={(e) => setEditingTask({...editingTask, title: e.target.value})}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+                          />
+                          <textarea
+                            value={editingTask.description}
+                            onChange={(e) => setEditingTask({...editingTask, description: e.target.value})}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+                            rows={3}
+                          />
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => handleUpdateTask(editingTask)}
+                              disabled={loading.updating}
+                              className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 disabled:opacity-50"
+                            >
+                              {loading.updating ? 'Salvando...' : 'Salvar'}
+                            </button>
+                            <button
+                              onClick={() => setEditingTask(null)}
+                              className="px-3 py-1 bg-gray-500 text-white rounded hover:bg-gray-600"
+                            >
+                              Cancelar
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <h3 className={`text-lg font-semibold ${task.status === 'completed' ? 'line-through text-gray-500' : 'text-gray-900'}`}>
+                              {task.title}
+                            </h3>
+                            {task.description && (
+                              <p className={`text-sm mt-1 ${task.status === 'completed' ? 'line-through text-gray-400' : 'text-gray-600'}`}>
+                                {task.description}
+                              </p>
+                            )}
+                            <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                              <span>Criada: {new Date(task.created_at).toLocaleString('pt-BR')}</span>
+                              <span className={`px-2 py-1 rounded-full text-white ${
+                                task.status === 'completed' ? 'bg-green-500' : 
+                                task.status === 'pending' ? 'bg-yellow-500' : 'bg-gray-500'
+                              }`}>
+                                {task.status === 'completed' ? '✅ Concluída' : 
+                                 task.status === 'pending' ? '⏳ Pendente' : '❌ Cancelada'}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex gap-2 ml-4">
+                            <button
+                              onClick={() => handleToggleStatus(task)}
+                              disabled={loading.updating}
+                              className={`px-3 py-1 rounded text-white ${
+                                task.status === 'pending' 
+                                  ? 'bg-green-500 hover:bg-green-600' 
+                                  : 'bg-yellow-500 hover:bg-yellow-600'
+                              } disabled:opacity-50 transition-all duration-200`}
+                              title={`${task.status === 'pending' ? 'Marcar como concluída' : 'Marcar como pendente'} | ID: ${task.id}`}
+                            >
+                              {loading.updating ? '⏳' : task.status === 'pending' ? '✅' : '↩️'}
+                            </button>
+                            <button
+                              onClick={() => setEditingTask(task)}
+                              className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+                            >
+                              ✏️
+                            </button>
+                            <button
+                              onClick={() => handleDeleteTask(task.id)}
+                              disabled={loading.deleting}
+                              className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 disabled:opacity-50"
+                            >
+                              {loading.deleting ? '...' : '🗑️'}
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+
+            {/* Dashboard de Estatísticas */}
+            {stats && (
+              <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-2xl font-bold text-gray-900">📊 Dashboard & Insights</h2>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                  <div className="bg-blue-50 p-4 rounded-lg">
+                    <h3 className="text-lg font-semibold text-blue-900">📝 Total de Tarefas</h3>
+                    <p className="text-3xl font-bold text-blue-600">{stats.total_tasks}</p>
+                  </div>
+                  
+                  <div className="bg-green-50 p-4 rounded-lg">
+                    <h3 className="text-lg font-semibold text-green-900">✅ Concluídas</h3>
+                    <p className="text-3xl font-bold text-green-600">{stats.completed_tasks}</p>
+                  </div>
+                  
+                  <div className="bg-yellow-50 p-4 rounded-lg">
+                    <h3 className="text-lg font-semibold text-yellow-900">⏳ Pendentes</h3>
+                    <p className="text-3xl font-bold text-yellow-600">{stats.pending_tasks}</p>
+                  </div>
+                  
+                  <div className="bg-purple-50 p-4 rounded-lg">
+                    <h3 className="text-lg font-semibold text-purple-900">📈 Taxa de Conclusão</h3>
+                    <p className="text-3xl font-bold text-purple-600">{stats.completion_rate}%</p>
+                  </div>
+                  
+                  <div className="bg-indigo-50 p-4 rounded-lg">
+                    <h3 className="text-lg font-semibold text-indigo-900">📅 Hoje</h3>
+                    <p className="text-3xl font-bold text-indigo-600">{stats.tasks_today}</p>
+                  </div>
+                  
+                  <div className="bg-pink-50 p-4 rounded-lg">
+                    <h3 className="text-lg font-semibold text-pink-900">📆 Esta Semana</h3>
+                    <p className="text-3xl font-bold text-pink-600">{stats.tasks_this_week}</p>
+                  </div>
+                  
+                  <div className="bg-red-50 p-4 rounded-lg">
+                    <h3 className="text-lg font-semibold text-red-900">📊 Este Mês</h3>
+                    <p className="text-3xl font-bold text-red-600">{stats.tasks_this_month}</p>
+                  </div>
+                  
+                  <div className="bg-teal-50 p-4 rounded-lg">
+                    <h3 className="text-lg font-semibold text-teal-900">🎯 Finalizadas Hoje</h3>
+                    <p className="text-3xl font-bold text-teal-600">{stats.completed_today}</p>
+                  </div>
+                </div>
+              </div>
             )}
           </div>
         </div>
-
-        {/* Seção de Estatísticas */}
-        {stats && (
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">📊 Suas Estatísticas</h2>
-            
-            {/* Cards de Estatísticas */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-              {/* Total de Tarefas */}
-              <div className="bg-white rounded-lg shadow-md p-4">
-                <div className="flex items-center">
-                  <div className="p-2 rounded-full bg-blue-100 text-blue-600 text-xl">
-                    📝
-                  </div>
-                  <div className="ml-3">
-                    <p className="text-sm font-medium text-gray-600">Total</p>
-                    <p className="text-xl font-bold text-gray-900">{stats.total_tasks}</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Tarefas Concluídas */}
-              <div className="bg-white rounded-lg shadow-md p-4">
-                <div className="flex items-center">
-                  <div className="p-2 rounded-full bg-green-100 text-green-600 text-xl">
-                    ✅
-                  </div>
-                  <div className="ml-3">
-                    <p className="text-sm font-medium text-gray-600">Concluídas</p>
-                    <p className="text-xl font-bold text-gray-900">{stats.completed_tasks}</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Tarefas Pendentes */}
-              <div className="bg-white rounded-lg shadow-md p-4">
-                <div className="flex items-center">
-                  <div className="p-2 rounded-full bg-yellow-100 text-yellow-600 text-xl">
-                    ⏰
-                  </div>
-                  <div className="ml-3">
-                    <p className="text-sm font-medium text-gray-600">Pendentes</p>
-                    <p className="text-xl font-bold text-gray-900">{stats.pending_tasks}</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Taxa de Conclusão */}
-              <div className="bg-white rounded-lg shadow-md p-4">
-                <div className="flex items-center">
-                  <div className="p-2 rounded-full bg-purple-100 text-purple-600 text-xl">
-                    📈
-                  </div>
-                  <div className="ml-3">
-                    <p className="text-sm font-medium text-gray-600">Taxa</p>
-                    <p className="text-xl font-bold text-gray-900">{stats.completion_rate}%</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Estatísticas Rápidas */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-              <div className="bg-white rounded-lg shadow-md p-4">
-                <p className="text-sm text-gray-600">📅 Hoje: <span className="font-bold">{stats.tasks_today} criadas, {stats.completed_today} concluídas</span></p>
-              </div>
-              <div className="bg-white rounded-lg shadow-md p-4">
-                <p className="text-sm text-gray-600">📆 Esta semana: <span className="font-bold">{stats.tasks_this_week} tarefas</span></p>
-              </div>
-              <div className="bg-white rounded-lg shadow-md p-4">
-                <p className="text-sm text-gray-600">🗓️ Este mês: <span className="font-bold">{stats.tasks_this_month} tarefas</span></p>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
-    </div>
+
+
+    </>
   )
-}
+} 

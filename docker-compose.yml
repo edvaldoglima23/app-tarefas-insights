@@ -25,6 +25,7 @@ services:
       - DJANGO_DB_NAME=tarefas
       - DJANGO_DB_USER=user
       - DJANGO_DB_PASSWORD=senha123
+      - VERIFY_SSL=true  # SSL ativado para produção
 
 volumes:
   postgres_data:

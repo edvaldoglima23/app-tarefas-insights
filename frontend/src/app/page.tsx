@@ -1,38 +1,30 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter  } from 'next/navigation'
-import axios from 'axios'
-import { Router } from 'next/router'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { useAuthStore } from '@/stores/authStore'
 
 export default function LoginPage() {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
   const router = useRouter()
+  
+  const { login, loading, error, isAuthenticated, clearError } = useAuthStore()
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push('/tasks')
+    }
+  }, [isAuthenticated, router])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
-    setLoading(true)
-    setError('')
+    clearError()
     
-   try {
-   
-      const response = await axios.post('http://localhost:8000/api/token/', {
-        username,
-        password
-      })
-
-      localStorage.setItem('token', response.data.access)
-
+    const success = await login(username, password)
+    if (success) {
       router.push('/tasks')
-
-   } catch (err) {      
-      setError('Usuario ou senha incorretos!')    
-   } finally {
-      setLoading(false)
-   }
+    }
   }
 
   return (

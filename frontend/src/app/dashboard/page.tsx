@@ -110,9 +110,9 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* Cards de Estatísticas */}
+        
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {/* Total de Tarefas */}
+         
           <div className="bg-white rounded-lg shadow-md p-6">
             <div className="flex items-center">
               <div className="p-3 rounded-full bg-blue-100 text-blue-600">
@@ -125,7 +125,7 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Tarefas Concluídas */}
+          
           <div className="bg-white rounded-lg shadow-md p-6">
             <div className="flex items-center">
               <div className="p-3 rounded-full bg-green-100 text-green-600">
@@ -138,7 +138,7 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Tarefas Pendentes */}
+          
           <div className="bg-white rounded-lg shadow-md p-6">
             <div className="flex items-center">
               <div className="p-3 rounded-full bg-yellow-100 text-yellow-600">
@@ -151,7 +151,7 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Taxa de Conclusão */}
+          
           <div className="bg-white rounded-lg shadow-md p-6">
             <div className="flex items-center">
               <div className="p-3 rounded-full bg-purple-100 text-purple-600">
@@ -165,7 +165,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Estatísticas por Período */}
+        
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="bg-white rounded-lg shadow-md p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">📅 Hoje</h3>
@@ -190,7 +190,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Tarefas Recentes */}
+        
         <div className="bg-white rounded-lg shadow-md p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">🕐 Tarefas Recentes</h3>
           <div className="space-y-3">
