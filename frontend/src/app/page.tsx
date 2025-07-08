@@ -1,15 +1,38 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter  } from 'next/navigation'
+import axios from 'axios'
+import { Router } from 'next/router'
 
 export default function LoginPage() {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const router = useRouter()
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
+    setLoading(true)
+    setError('')
     
-    console.log('Login:', username, password)
+   try {
+   
+      const response = await axios.post('http://localhost:8000/api/token/', {
+        username,
+        password
+      })
+
+      localStorage.setItem('token', response.data.access)
+
+      router.push('/tasks')
+
+   } catch (err) {      
+      setError('Usuario ou senha incorretos!')    
+   } finally {
+      setLoading(false)
+   }
   }
 
   return (
@@ -23,6 +46,13 @@ export default function LoginPage() {
             Faça login para ver suas tarefas
           </p>
         </div>
+        
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+            {error}
+          </div>
+        )}
+
         <form className="mt-8 space-y-6" onSubmit={handleLogin}>
           <div className="space-y-4">
             <div>
@@ -33,8 +63,9 @@ export default function LoginPage() {
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-gray-900"
                 placeholder="Digite seu usuário"
+                required
               />
             </div>
             <div>
@@ -47,18 +78,20 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-gray-900"
                 placeholder="Digite sua senha"
+                required
               />
             </div>
           </div>
           <div>
             <button
               type="submit"
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              disabled={loading}
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
             >
-              Entrar
+              {loading ? 'Entrando...' : 'Entrar'}
             </button>
           </div>
-        </form>
+        </form>           
       </div>
     </div>
   )
