@@ -11,12 +11,21 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 import os
+import dj_database_url
 
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Debug das variáveis de ambiente
+print("=== DJANGO SETTINGS DEBUG ===")
+print("PGHOST:", os.environ.get('PGHOST', 'NOT FOUND'))
+print("PGDATABASE:", os.environ.get('PGDATABASE', 'NOT FOUND'))
+print("PGUSER:", os.environ.get('PGUSER', 'NOT FOUND'))
+print("PGPASSWORD:", os.environ.get('PGPASSWORD', 'NOT FOUND'))
+print("DATABASE_URL:", os.environ.get('DATABASE_URL', 'NOT FOUND'))
+print("PORT:", os.environ.get('PORT', 'NOT FOUND'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -79,16 +88,27 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('PGDATABASE', 'tarefas'),
-        'USER': os.environ.get('PGUSER', 'user'),
-        'PASSWORD': os.environ.get('PGPASSWORD', 'senha123'),
-        'HOST': os.environ.get('PGHOST', 'localhost'),
-        'PORT': os.environ.get('PGPORT', '5432'),
+# Tentar usar DATABASE_URL primeiro (mais comum no Railway)
+if os.environ.get('DATABASE_URL'):
+    DATABASES = {
+        'default': dj_database_url.parse(os.environ.get('DATABASE_URL'))
     }
-}
+    print("Using DATABASE_URL")
+else:
+    # Fallback para variáveis individuais
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.environ.get('PGDATABASE', 'tarefas'),
+            'USER': os.environ.get('PGUSER', 'user'),
+            'PASSWORD': os.environ.get('PGPASSWORD', 'senha123'),
+            'HOST': os.environ.get('PGHOST', 'localhost'),
+            'PORT': os.environ.get('PGPORT', '5432'),
+        }
+    }
+    print("Using individual PG variables")
+
+print("Final DATABASE config:", DATABASES['default'])
 
 
 # Password validation
