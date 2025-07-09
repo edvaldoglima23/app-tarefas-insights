@@ -7,23 +7,26 @@ import { useAuthStore } from '@/stores/authStore'
 export default function LoginPage() {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true)
   const router = useRouter()
   
   const { login, loading, error, isAuthenticated, clearError, checkAuthStatus } = useAuthStore()
 
   useEffect(() => {
-    
     const checkAuth = async () => {
+      setIsCheckingAuth(true)
       await checkAuthStatus()
+      setIsCheckingAuth(false)
     }
     checkAuth()
   }, [checkAuthStatus])
 
   useEffect(() => {
-    if (isAuthenticated) {
+    // Só redireciona se não estiver verificando e estiver autenticado
+    if (!isCheckingAuth && isAuthenticated) {
       router.push('/tasks')
     }
-  }, [isAuthenticated, router])
+  }, [isAuthenticated, router, isCheckingAuth])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -33,6 +36,18 @@ export default function LoginPage() {
     if (success) {
       router.push('/tasks')
     }
+  }
+
+  // Mostra loading enquanto verifica autenticação
+  if (isCheckingAuth) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+          <p className="text-gray-600">Verificando login...</p>
+        </div>
+      </div>
+    )
   }
 
   return (

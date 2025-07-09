@@ -77,6 +77,8 @@ export const useAuthStore = create<AuthState & AuthActions>()(
 
       checkAuthStatus: async () => {
         const token = localStorage.getItem('token')
+        
+        // Se não há token, definitivamente não está autenticado
         if (!token) {
           set({
             user: null,
@@ -88,14 +90,23 @@ export const useAuthStore = create<AuthState & AuthActions>()(
         }
 
         try {
+          // Tenta fazer uma requisição para verificar se o token é válido
           const response = await fetch('http://localhost:8000/api/tasks/', {
             headers: {
-              'Authorization': `Bearer ${token}`
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
             }
           })
           
-          if (response.status === 401) {
-            // Token inválido ou expirado
+          if (response.status === 200) {
+            // Token válido - usuário está autenticado
+            set({
+              token,
+              isAuthenticated: true,
+              error: null
+            })
+          } else {
+            // Token inválido, expirado ou qualquer outro erro de autenticação
             localStorage.removeItem('token')
             localStorage.removeItem('refresh')
             set({
@@ -104,17 +115,10 @@ export const useAuthStore = create<AuthState & AuthActions>()(
               isAuthenticated: false,
               error: null
             })
-          } else if (response.status === 200) {
-            // Token válido - confirmar autenticação
-            set({
-              token,
-              isAuthenticated: true,
-              error: null
-            })
           }
         } catch (error) {
-          // Erro de conexão - limpar autenticação por segurança
-          console.log('Erro ao verificar token:', error)
+          // Erro de conexão ou servidor - por segurança, consideramos não autenticado
+          console.log('Erro ao verificar autenticação:', error)
           localStorage.removeItem('token')
           localStorage.removeItem('refresh')
           set({
