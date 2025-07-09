@@ -85,8 +85,11 @@ if DATABASE_URL:
     DATABASES = {
         'default': dj_database_url.parse(DATABASE_URL)
     }
-    # Adicionar configuração SSL para Railway
-    DATABASES['default']['OPTIONS'] = {'sslmode': 'require'}
+    # Configuração mais flexível para Railway
+    DATABASES['default']['CONN_MAX_AGE'] = 60
+    DATABASES['default']['OPTIONS'] = {
+        'connect_timeout': 30,
+    }
 else:
     print("DATABASE_URL não encontrada, usando variáveis individuais...")
     DATABASES = {
@@ -97,7 +100,10 @@ else:
             'PASSWORD': os.environ.get('PGPASSWORD', ''),
             'HOST': os.environ.get('PGHOST', 'localhost'),
             'PORT': os.environ.get('PGPORT', '5432'),
-            'OPTIONS': {'sslmode': 'require'},
+            'CONN_MAX_AGE': 60,
+            'OPTIONS': {
+                'connect_timeout': 30,
+            },
         }
     }
 
