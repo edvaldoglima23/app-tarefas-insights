@@ -1,9 +1,9 @@
 
-from rest_framework import viewsets, status  # noqa
-from rest_framework.decorators import action  # noqa
-from rest_framework.response import Response  # noqa
-from rest_framework.permissions import IsAuthenticated  # noqa
-from django.db.models import Count, Q  # noqa
+from rest_framework import viewsets, status  
+from rest_framework.decorators import action  
+from rest_framework.response import Response  
+from rest_framework.permissions import IsAuthenticated  
+from django.db.models import Count, Q  
 from django.http import HttpResponse
 from datetime import datetime, timedelta
 import requests
@@ -29,7 +29,7 @@ class TaskViewSet(viewsets.ModelViewSet):
         """
         queryset = Task.objects.filter(user=self.request.user)
         
-        # Verificar se o request tem query_params (DRF Request) ou usar GET (Django HttpRequest)
+        
         if hasattr(self.request, 'query_params'):
             query_params = self.request.query_params
         else:
@@ -196,14 +196,14 @@ class TaskViewSet(viewsets.ModelViewSet):
             except ValueError:
                 pass
         
-        # Ordenação
+        
         ordering = request.query_params.get('ordering', '-created_at')
         if ordering in ['created_at', '-created_at', 'title', '-title', 'status', '-status']:
             queryset = queryset.order_by(ordering)
         else:
             queryset = queryset.order_by('-created_at')
         
-        # Serializar resultados
+        
         serializer = TaskSerializer(queryset, many=True)
         
         return Response({
@@ -308,15 +308,15 @@ class TaskViewSet(viewsets.ModelViewSet):
         """
         Exporta as tarefas do usuário em formato CSV profissional
         """
-        # Obter tarefas do usuário com filtros aplicados
+        
         queryset = self.get_queryset()
         
-        # Gerar nome do arquivo mais profissional
+       
         username = request.user.username
         today = datetime.now().strftime('%Y-%m-%d')
         filename = f'tarefas_{username}_{today}.csv'
         
-        # Criar resposta HTTP com tipo CSV e encoding UTF-8
+       
         response = HttpResponse(
             content_type='text/csv; charset=utf-8',
             headers={
@@ -324,13 +324,13 @@ class TaskViewSet(viewsets.ModelViewSet):
             },
         )
         
-        # Adicionar BOM para Excel reconhecer UTF-8
+        
         response.write('\ufeff')
         
-        # Configurar writer CSV com delimitador ponto e vírgula (melhor para Excel BR)
+        
         writer = csv.writer(response, delimiter=';', quoting=csv.QUOTE_ALL)
         
-        # Cabeçalho profissional
+        
         writer.writerow([
             'ID',
             'Título',
@@ -343,19 +343,19 @@ class TaskViewSet(viewsets.ModelViewSet):
             'Usuário'
         ])
         
-        # Escrever dados das tarefas com formatação profissional
+        
         for task in queryset:
-            # Calcular dias desde criação
+            
             days_since_creation = (datetime.now().date() - task.created_at.date()).days
             
-            # Status em português
+            
             status_map = {
                 'pending': 'Pendente',
                 'completed': 'Concluída',
                 'cancelled': 'Cancelada'
             }
             
-            # Determinar prioridade baseada na idade da tarefa
+            
             if task.status == 'pending':
                 if days_since_creation > 7:
                     priority = 'Alta'
