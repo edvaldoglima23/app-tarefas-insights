@@ -106,18 +106,7 @@ export default function LoginPage() {
               {loading ? 'Entrando...' : 'Entrar'}
             </button>
           </div>
-          <div className="text-center">
-            <button
-              type="button"
-              onClick={() => {
-                localStorage.clear()
-                window.location.reload()
-              }}
-              className="text-sm text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-300 underline"
-            >
-              Limpar sessão e recarregar
-            </button>
-          </div>
+          
         </form>           
       </div>
     </div>

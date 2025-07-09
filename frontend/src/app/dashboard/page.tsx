@@ -164,32 +164,7 @@ export default function DashboardPage() {
               </button>
             </div>
           </div>
-        </div>
-
-        {/* Banner de Frase Motivacional */}
-        {quote && (
-          <div className="bg-gradient-to-r from-blue-500 to-purple-600 dark:from-blue-600 dark:to-purple-700 rounded-lg shadow-md p-6 mb-6 text-white">
-            <div className="flex items-start gap-4">
-              <div className="text-3xl">💡</div>
-              <div className="flex-1">
-                <blockquote className="text-lg font-medium italic mb-2">
-                  "{quote.content}"
-                </blockquote>
-                <cite className="text-blue-100 dark:text-blue-200 text-sm">
-                  — {quote.author}
-                </cite>
-                {!quote.success && quote.message && (
-                  <p className="text-blue-100 dark:text-blue-200 text-xs mt-1">
-                    {quote.message}
-                  </p>
-                )}
-              </div>
-              {taskLoading.quote && (
-                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
-              )}
-            </div>
-          </div>
-        )}
+        </div>     
 
         {error && (
           <div className="bg-red-100 dark:bg-red-900/20 border border-red-400 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 rounded mb-4">
