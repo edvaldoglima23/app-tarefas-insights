@@ -1,47 +1,282 @@
-# Python
+# ===== PYTHON/DJANGO =====
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
+
+# Distribution / packaging
 .Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Virtual environments
 env/
 venv/
 ENV/
 env.bak/
 venv.bak/
+.venv/
+.ENV/
 
-# Django
+# Django specific
 *.log
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
 media/
-
-# Docker
-.dockerignore
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# OS
-.DS_Store
-Thumbs.db
+staticfiles/
+static/
+*.pot
 
 # Environment variables
 .env
 .env.local
+.env.development
+.env.test
 .env.production
+.env.production.local
 
-# Database
+# ===== NEXT.JS/REACT =====
+# Dependencies
+frontend/node_modules/
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Next.js
+frontend/.next/
+frontend/out/
+frontend/build/
+.next/
+out/
+build/
+
+# Next.js cache
+frontend/.swc/
+.swc/
+
+# Vercel
+.vercel
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# Testing
+coverage/
+.nyc_output
+*.lcov
+
+# ===== DATABASE =====
+# PostgreSQL
 *.sql
 *.sqlite
+*.db
+*.dump
 
-# Static files (quando você configurar)
-staticfiles/
-static/
+# Database migrations (manter apenas os originais)
+# migrations/
+# !migrations/__init__.py
+# !migrations/0001_initial.py
 
-# Arquivos de desenvolvimento local
-CHECKLIST.md 
+# ===== DOCKER =====
+# Docker volumes
+docker-volumes/
+postgres_data/
+
+# ===== IDE/EDITOR =====
+# VSCode
+.vscode/
+*.code-workspace
+
+# PyCharm
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# ===== OS =====
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+.nfs*
+
+# ===== LOGS =====
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ===== TEMPORARY/CACHE =====
+# Temporary files
+tmp/
+temp/
+.tmp/
+.temp/
+
+# Cache directories
+.cache/
+.parcel-cache/
+.eslintcache
+
+# ===== DEPLOYMENT =====
+# Railway
+.railway/
+
+# Heroku
+.heroku/
+
+# ===== DEVELOPMENT FILES =====
+# Documentation temp files
+CHECKLIST.md
+TODO.md
+NOTES.md
+DEVELOPMENT.md
+
+# Test files
+test_data/
+test_files/
+test_output/
+
+# Backup files
+*.bak
+*.backup
+*.orig
+
+# ===== SECURITY =====
+# Certificates
+*.pem
+*.key
+*.crt
+*.cert
+
+# SSH keys
+id_rsa
+id_rsa.pub
+*.ppk
+
+# ===== MISCELLANEOUS =====
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+# Sphinx documentation
+docs/_build/
+
+# Coverage reports
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# ESLint
+.eslintcache
+
+# Optional npm cache directory
+.npm
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# dotenv environment variable files
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Stores VSCode versions used for testing VSCode extensions
+.vscode-test
+
+# yarn v2
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.* 
