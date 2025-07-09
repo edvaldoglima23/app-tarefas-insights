@@ -24,7 +24,7 @@ export const useAuthStore = create<AuthState & AuthActions>()(
     (set) => ({
       user: null,
       token: null,
-      isAuthenticated: false,
+      isAuthenticated: false, // Sempre começa como false
       loading: false,
       error: null,
 
@@ -47,8 +47,8 @@ export const useAuthStore = create<AuthState & AuthActions>()(
           })
           
           return true
-        } catch (error: unknown) {
-          const errorMessage = (error as { response?: { data?: { detail?: string } } })?.response?.data?.detail || 'Erro ao fazer login'
+        } catch (error: any) {
+          const errorMessage = error?.response?.data?.detail || 'Erro ao fazer login'
           set({
             loading: false,
             error: errorMessage,
@@ -78,7 +78,7 @@ export const useAuthStore = create<AuthState & AuthActions>()(
       checkAuthStatus: async () => {
         const token = localStorage.getItem('token')
         
-        // Se não há token, definitivamente não está autenticado
+        // Se não tem token, não está autenticado
         if (!token) {
           set({
             user: null,
@@ -91,22 +91,23 @@ export const useAuthStore = create<AuthState & AuthActions>()(
 
         try {
           // Tenta fazer uma requisição para verificar se o token é válido
-          const response = await fetch('http://localhost:8000/api/tasks/', {
+          const response = await fetch('http://localhost:8000/api/auth/verify/', {
+            method: 'POST',
             headers: {
-              'Authorization': `Bearer ${token}`,
               'Content-Type': 'application/json'
-            }
+            },
+            body: JSON.stringify({ token })
           })
           
-          if (response.status === 200) {
-            // Token válido - usuário está autenticado
+          if (response.ok) {
+            // Token válido
             set({
               token,
               isAuthenticated: true,
               error: null
             })
           } else {
-            // Token inválido, expirado ou qualquer outro erro de autenticação
+            // Token inválido
             localStorage.removeItem('token')
             localStorage.removeItem('refresh')
             set({
@@ -117,8 +118,7 @@ export const useAuthStore = create<AuthState & AuthActions>()(
             })
           }
         } catch (error) {
-          // Erro de conexão ou servidor - por segurança, consideramos não autenticado
-          console.log('Erro ao verificar autenticação:', error)
+          // Erro de conexão - por segurança, considera não autenticado
           localStorage.removeItem('token')
           localStorage.removeItem('refresh')
           set({
@@ -133,10 +133,10 @@ export const useAuthStore = create<AuthState & AuthActions>()(
     {
       name: 'auth-storage',
       partialize: (state) => ({ 
-        user: state.user, 
-        token: state.token,
-        isAuthenticated: state.isAuthenticated 
-      }),
+        user: state.user,
+        token: state.token
+        // NÃO persiste isAuthenticated - sempre verifica
+      })
     }
   )
 ) 
