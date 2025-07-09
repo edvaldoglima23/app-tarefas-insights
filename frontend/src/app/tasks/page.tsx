@@ -18,7 +18,9 @@ export default function TasksPage() {
     updateTask, 
     deleteTask, 
     toggleTaskStatus,
-    clearError 
+    clearError,
+    quote,
+    fetchQuote
   } = useTaskStore();
 
   const [showForm, setShowForm] = useState(false);
@@ -39,7 +41,8 @@ export default function TasksPage() {
       return;
     }
     fetchTasks();
-  }, [isAuthenticated, router, fetchTasks]);
+    fetchQuote();
+  }, [isAuthenticated, router, fetchTasks, fetchQuote]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -111,6 +114,41 @@ export default function TasksPage() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-900 py-8">
       <div className="max-w-6xl mx-auto px-4">
+        {/* Banner de Frase Motivacional */}
+        {quote && (
+          <div className="bg-gradient-to-r from-green-500 to-blue-600 dark:from-green-600 dark:to-blue-700 rounded-lg shadow-md p-6 mb-6 text-white">
+            <div className="flex items-start gap-4">
+              <div className="text-3xl">✨</div>
+              <div className="flex-1">
+                <blockquote className="text-lg font-medium italic mb-2">
+                  "{quote.content}"
+                </blockquote>
+                <cite className="text-green-100 dark:text-green-200 text-sm">
+                  — {quote.author}
+                </cite>
+                {!quote.success && quote.message && (
+                  <p className="text-green-100 dark:text-green-200 text-xs mt-1">
+                    {quote.message}
+                  </p>
+                )}
+              </div>
+              <div className="flex flex-col gap-2">
+                {loading.quote && (
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+                )}
+                <button
+                  onClick={fetchQuote}
+                  disabled={loading.quote}
+                  className="px-3 py-2 bg-white/20 hover:bg-white/30 rounded-md text-white text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                  title="Buscar nova frase motivacional"
+                >
+                  {loading.quote ? '⏳' : '🔄'} Nova Frase
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-6 mb-6">
           <div className="flex justify-between items-center mb-4">
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
