@@ -1,26 +1,334 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* DARK MODE ELEGANTE - FUNCIONA E FICA BONITO */
+
+/* Modo Escuro */
+.dark {
+  color-scheme: dark;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+.dark body,
+.dark html {
+  background-color: #0f172a !important; /* slate-900 - fundo principal */
+  color: #f1f5f9 !important;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Containers principais - tom mais claro para contraste */
+.dark .bg-white,
+.dark [class*="bg-white"] {
+  background-color: #1e293b !important; /* slate-800 - cards */
+  color: #f1f5f9 !important;
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+.dark .bg-gray-50,
+.dark [class*="bg-gray-50"] {
+  background-color: #334155 !important; /* slate-700 - seções internas */
+  color: #f1f5f9 !important;
+}
+
+/* Área principal da página */
+.dark .min-h-screen {
+  background-color: #0f172a !important; /* slate-900 */
+}
+
+/* Textos com hierarquia visual */
+.dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6 {
+  color: #f1f5f9 !important; /* branco para títulos */
+}
+
+.dark .text-gray-900 {
+  color: #f1f5f9 !important; /* branco para textos principais */
+}
+
+.dark .text-gray-600,
+.dark .text-gray-700 {
+  color: #cbd5e1 !important; /* slate-300 para textos secundários */
+}
+
+.dark .text-gray-500 {
+  color: #94a3b8 !important; /* slate-400 para textos terciários */
+}
+
+.dark p, .dark span:not([class*="bg-"]):not([class*="text-"]) {
+  color: #cbd5e1 !important; /* slate-300 */
+}
+
+.dark label {
+  color: #cbd5e1 !important; /* slate-300 */
+}
+
+/* Inputs e formulários */
+.dark input,
+.dark textarea,
+.dark select {
+  background-color: #475569 !important; /* slate-600 - mais claro para inputs */
+  color: #f1f5f9 !important;
+  border-color: #64748b !important; /* slate-500 */
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #94a3b8 !important; /* slate-400 */
+}
+
+/* Bordas suaves */
+.dark .border-gray-200,
+.dark .border-gray-300 {
+  border-color: #475569 !important; /* slate-600 */
+}
+
+/* Cards com sombra e profundidade */
+.dark .shadow-md,
+.dark .rounded-lg {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Botões mantêm suas cores originais */
+.dark .bg-blue-500,
+.dark .bg-green-500,
+.dark .bg-red-500,
+.dark .bg-yellow-500,
+.dark .bg-purple-500 {
+  /* Mantém cores originais dos botões */
+}
+
+/* Cards coloridos de estatísticas - tons mais suaves no dark */
+.dark .bg-blue-50 {
+  background-color: rgba(59, 130, 246, 0.1) !important; /* blue com transparência */
+  color: #93c5fd !important; /* blue-300 */
+}
+
+.dark .bg-green-50 {
+  background-color: rgba(34, 197, 94, 0.1) !important; /* green com transparência */
+  color: #86efac !important; /* green-300 */
+}
+
+.dark .bg-yellow-50 {
+  background-color: rgba(234, 179, 8, 0.1) !important; /* yellow com transparência */
+  color: #fde047 !important; /* yellow-300 */
+}
+
+.dark .bg-purple-50 {
+  background-color: rgba(168, 85, 247, 0.1) !important; /* purple com transparência */
+  color: #c4b5fd !important; /* purple-300 */
+}
+
+.dark .bg-red-50 {
+  background-color: rgba(239, 68, 68, 0.1) !important; /* red com transparência */
+  color: #fca5a5 !important; /* red-300 */
+}
+
+.dark .bg-indigo-50 {
+  background-color: rgba(99, 102, 241, 0.1) !important; /* indigo com transparência */
+  color: #a5b4fc !important; /* indigo-300 */
+}
+
+.dark .bg-pink-50 {
+  background-color: rgba(236, 72, 153, 0.1) !important; /* pink com transparência */
+  color: #f9a8d4 !important; /* pink-300 */
+}
+
+.dark .bg-teal-50 {
+  background-color: rgba(20, 184, 166, 0.1) !important; /* teal com transparência */
+  color: #5eead4 !important; /* teal-300 */
+}
+
+/* Textos dos cards coloridos */
+.dark .text-blue-900 { color: #93c5fd !important; }
+.dark .text-green-900 { color: #86efac !important; }
+.dark .text-yellow-900 { color: #fde047 !important; }
+.dark .text-purple-900 { color: #c4b5fd !important; }
+.dark .text-red-900 { color: #fca5a5 !important; }
+.dark .text-indigo-900 { color: #a5b4fc !important; }
+.dark .text-pink-900 { color: #f9a8d4 !important; }
+.dark .text-teal-900 { color: #5eead4 !important; }
+
+.dark .text-blue-600 { color: #60a5fa !important; }
+.dark .text-green-600 { color: #4ade80 !important; }
+.dark .text-yellow-600 { color: #facc15 !important; }
+.dark .text-purple-600 { color: #a855f7 !important; }
+.dark .text-red-600 { color: #ef4444 !important; }
+.dark .text-indigo-600 { color: #6366f1 !important; }
+.dark .text-pink-600 { color: #ec4899 !important; }
+.dark .text-teal-600 { color: #14b8a6 !important; }
+
+/* MODO CLARO - RESTAURA O DESIGN ORIGINAL BONITO */
+html:not(.dark) {
+  color-scheme: light;
+}
+
+/* Garante que o modo claro use as cores originais do Tailwind */
+html:not(.dark) body,
+.light body {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+}
+
+/* Fundo branco para containers no modo claro */
+html:not(.dark) .bg-white,
+.light .bg-white {
+  background-color: #ffffff !important;
+  color: #111827 !important; /* gray-900 */
+}
+
+/* Fundo cinza claro para seções */
+html:not(.dark) .bg-gray-50,
+.light .bg-gray-50 {
+  background-color: #f9fafb !important; /* gray-50 original */
+  color: #111827 !important;
+}
+
+/* Textos escuros no modo claro */
+html:not(.dark) .text-gray-900,
+.light .text-gray-900 {
+  color: #111827 !important; /* gray-900 original */
+}
+
+html:not(.dark) .text-gray-600,
+.light .text-gray-600 {
+  color: #4b5563 !important; /* gray-600 original */
+}
+
+html:not(.dark) .text-gray-700,
+.light .text-gray-700 {
+  color: #374151 !important; /* gray-700 original */
+}
+
+html:not(.dark) .text-gray-500,
+.light .text-gray-500 {
+  color: #6b7280 !important; /* gray-500 original */
+}
+
+/* Inputs com fundo branco no modo claro */
+html:not(.dark) input,
+html:not(.dark) textarea,
+html:not(.dark) select,
+.light input,
+.light textarea,
+.light select {
+  background-color: #ffffff !important;
+  color: #111827 !important;
+  border-color: #d1d5db !important; /* gray-300 original */
+}
+
+html:not(.dark) input::placeholder,
+html:not(.dark) textarea::placeholder,
+.light input::placeholder,
+.light textarea::placeholder {
+  color: #6b7280 !important; /* gray-500 original */
+}
+
+/* Bordas cinzas no modo claro */
+html:not(.dark) .border-gray-200,
+.light .border-gray-200 {
+  border-color: #e5e7eb !important; /* gray-200 original */
+}
+
+html:not(.dark) .border-gray-300,
+.light .border-gray-300 {
+  border-color: #d1d5db !important; /* gray-300 original */
+}
+
+/* Cards coloridos mantêm cores originais no modo claro */
+html:not(.dark) .bg-blue-50,
+.light .bg-blue-50 {
+  background-color: #eff6ff !important; /* blue-50 original */
+  color: #1e3a8a !important; /* blue-900 original */
+}
+
+html:not(.dark) .bg-green-50,
+.light .bg-green-50 {
+  background-color: #f0fdf4 !important; /* green-50 original */
+  color: #14532d !important; /* green-900 original */
+}
+
+html:not(.dark) .bg-yellow-50,
+.light .bg-yellow-50 {
+  background-color: #fefce8 !important; /* yellow-50 original */
+  color: #713f12 !important; /* yellow-900 original */
+}
+
+html:not(.dark) .bg-purple-50,
+.light .bg-purple-50 {
+  background-color: #faf5ff !important; /* purple-50 original */
+  color: #581c87 !important; /* purple-900 original */
+}
+
+html:not(.dark) .bg-red-50,
+.light .bg-red-50 {
+  background-color: #fef2f2 !important; /* red-50 original */
+  color: #7f1d1d !important; /* red-900 original */
+}
+
+html:not(.dark) .bg-indigo-50,
+.light .bg-indigo-50 {
+  background-color: #eef2ff !important; /* indigo-50 original */
+  color: #312e81 !important; /* indigo-900 original */
+}
+
+html:not(.dark) .bg-pink-50,
+.light .bg-pink-50 {
+  background-color: #fdf2f8 !important; /* pink-50 original */
+  color: #831843 !important; /* pink-900 original */
+}
+
+html:not(.dark) .bg-teal-50,
+.light .bg-teal-50 {
+  background-color: #f0fdfa !important; /* teal-50 original */
+  color: #134e4a !important; /* teal-900 original */
+}
+
+/* Textos dos cards coloridos no modo claro - cores originais */
+html:not(.dark) .text-blue-900,
+.light .text-blue-900 { color: #1e3a8a !important; }
+
+html:not(.dark) .text-green-900,
+.light .text-green-900 { color: #14532d !important; }
+
+html:not(.dark) .text-yellow-900,
+.light .text-yellow-900 { color: #713f12 !important; }
+
+html:not(.dark) .text-purple-900,
+.light .text-purple-900 { color: #581c87 !important; }
+
+html:not(.dark) .text-red-900,
+.light .text-red-900 { color: #7f1d1d !important; }
+
+html:not(.dark) .text-indigo-900,
+.light .text-indigo-900 { color: #312e81 !important; }
+
+html:not(.dark) .text-pink-900,
+.light .text-pink-900 { color: #831843 !important; }
+
+html:not(.dark) .text-teal-900,
+.light .text-teal-900 { color: #134e4a !important; }
+
+html:not(.dark) .text-blue-600,
+.light .text-blue-600 { color: #2563eb !important; }
+
+html:not(.dark) .text-green-600,
+.light .text-green-600 { color: #16a34a !important; }
+
+html:not(.dark) .text-yellow-600,
+.light .text-yellow-600 { color: #ca8a04 !important; }
+
+html:not(.dark) .text-purple-600,
+.light .text-purple-600 { color: #9333ea !important; }
+
+html:not(.dark) .text-red-600,
+.light .text-red-600 { color: #dc2626 !important; }
+
+html:not(.dark) .text-indigo-600,
+.light .text-indigo-600 { color: #4f46e5 !important; }
+
+html:not(.dark) .text-pink-600,
+.light .text-pink-600 { color: #db2777 !important; }
+
+html:not(.dark) .text-teal-600,
+.light .text-teal-600 { color: #0d9488 !important; }
+
+/* Sombras originais no modo claro */
+html:not(.dark) .shadow-md,
+.light .shadow-md {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
 }

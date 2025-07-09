@@ -116,15 +116,15 @@ export default function TasksPage() {
     <>
       {/* Barra de Frase Motivacional */}
       {quote && (
-        <div className="fixed top-0 left-0 w-full z-40 bg-purple-50 border-b border-purple-200 text-center flex items-center justify-center py-2 px-4 shadow-sm">
-          <span className="text-purple-700 text-base font-medium flex items-center gap-2">
+        <div className="fixed top-0 left-0 w-full z-40 bg-purple-50 dark:bg-purple-900/20 border-b border-purple-200 dark:border-purple-800 text-center flex items-center justify-center py-2 px-4 shadow-sm">
+          <span className="text-purple-700 dark:text-purple-300 text-base font-medium flex items-center gap-2">
             <span className="text-lg">💡</span>
             <span className="italic max-w-[60vw] truncate">&ldquo;{quote.content}&rdquo;</span>
-            <span className="text-sm text-purple-500 ml-2">— {quote.author}</span>
+            <span className="text-sm text-purple-500 dark:text-purple-400 ml-2">— {quote.author}</span>
             <button
               onClick={fetchQuote}
               disabled={loading.quote}
-              className="ml-4 px-2 py-1 rounded hover:bg-purple-100 text-purple-700 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              className="ml-4 px-2 py-1 rounded hover:bg-purple-100 dark:hover:bg-purple-800/50 text-purple-700 dark:text-purple-300 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
               title="Nova frase"
             >
               {loading.quote ? '⏳' : '🔄'}
@@ -134,13 +134,13 @@ export default function TasksPage() {
       )}
 
       <div className="pt-5">
-        <div className="min-h-screen bg-gray-50 py-8">
+        <div className="min-h-screen bg-gray-50 dark:bg-slate-900 py-8">
           <div className="max-w-6xl mx-auto px-4">
             
             {/* Header */}
-            <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-6 mb-6">
               <div className="flex justify-between items-center">
-                <h1 className="text-3xl font-bold text-gray-900">
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
                   🎯 Minhas Tarefas & Dashboard
                 </h1>
                 <div className="flex gap-4">
@@ -163,15 +163,15 @@ export default function TasksPage() {
             </div>
 
             {error && (
-              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 flex justify-between items-center">
+              <div className="bg-red-100 dark:bg-red-900/20 border border-red-400 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 rounded mb-4 flex justify-between items-center">
                 {error}
-                <button onClick={clearError} className="ml-2 text-red-500 hover:text-red-700">✕</button>
+                <button onClick={clearError} className="ml-2 text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300">✕</button>
               </div>
             )}
 
             {/* Gerenciar Tarefas */}
-            <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">📋 Gerenciar Tarefas</h2>
+            <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-6 mb-8">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">📋 Gerenciar Tarefas</h2>
               
               {/* Formulário Nova Tarefa */}
               <form onSubmit={handleAddTask} className="mb-6">
@@ -182,7 +182,7 @@ export default function TasksPage() {
                       value={newTask}
                       onChange={(e) => setNewTask(e.target.value)}
                       placeholder="Título da tarefa..."
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
                       required
                     />
                   </div>
@@ -191,7 +191,7 @@ export default function TasksPage() {
                       value={newDescription}
                       onChange={(e) => setNewDescription(e.target.value)}
                       placeholder="Descrição (opcional)..."
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
                       rows={3}
                     />
                   </div>
@@ -206,27 +206,27 @@ export default function TasksPage() {
               </form>
 
               {/* Filtros e Busca */}
-              <div className="bg-gray-50 rounded-lg p-4 mb-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">🔍 Filtros e Busca</h3>
+              <div className="bg-gray-50 dark:bg-slate-700 rounded-lg p-4 mb-6">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">🔍 Filtros e Busca</h3>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Buscar:</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Buscar:</label>
                     <input
                       type="text"
                       value={filters.search}
                       onChange={(e) => setFilters({ search: e.target.value })}
                       placeholder="Digite para buscar..."
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
                     />
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Status:</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Status:</label>
                     <select
                       value={filters.status}
                       onChange={(e) => setFilters({ status: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
                     >
                       <option value="">Todos</option>
                       <option value="pending">Pendente</option>
@@ -235,31 +235,31 @@ export default function TasksPage() {
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Data De:</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Data De:</label>
                     <input
                       type="date"
                       value={filters.dateFrom}
                       onChange={(e) => setFilters({ dateFrom: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
                     />
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Data Até:</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Data Até:</label>
                     <input
                       type="date"
                       value={filters.dateTo}
                       onChange={(e) => setFilters({ dateTo: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
                     />
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Ordenar:</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Ordenar:</label>
                     <select
                       value={filters.ordering}
                       onChange={(e) => setFilters({ ordering: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
                     >
                       <option value="-created_at">Data ↓ (Recente)</option>
                       <option value="created_at">Data ↑ (Antiga)</option>
@@ -288,7 +288,7 @@ export default function TasksPage() {
                 </div>
                 
                 {searchResults && (
-                  <div className="mt-4 text-sm text-gray-600">
+                  <div className="mt-4 text-sm text-gray-600 dark:text-slate-400">
                     Encontradas {searchResults.count} tarefas
                     {Object.values(searchResults.filters_applied).some(v => v) && 
                       ' com os filtros aplicados'
@@ -300,32 +300,32 @@ export default function TasksPage() {
               {/* Lista de Tarefas */}
               <div className={`space-y-4 transition-opacity duration-300 ${loading.searching ? 'opacity-50' : 'opacity-100'}`}>
                 {loading.searching && (
-                  <div className="text-center py-4 text-blue-600">
+                  <div className="text-center py-4 text-blue-600 dark:text-blue-400">
                     <div className="inline-flex items-center gap-2">
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 dark:border-blue-400"></div>
                       Atualizando lista...
                     </div>
                   </div>
                 )}
                 {tasks.length === 0 && !loading.searching ? (
-                  <div className="text-center py-8 text-gray-500">
+                  <div className="text-center py-8 text-gray-500 dark:text-slate-400">
                     {searchResults ? 'Nenhuma tarefa encontrada com os filtros aplicados' : 'Nenhuma tarefa criada ainda'}
                   </div>
                 ) : (
                   tasks.map((task) => (
-                    <div key={task.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                    <div key={task.id} className="border border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-800 rounded-lg p-4 hover:shadow-md transition-shadow">
                       {editingTask?.id === task.id ? (
                         <div className="space-y-3">
                           <input
                             type="text"
                             value={editingTask.title}
                             onChange={(e) => setEditingTask({...editingTask, title: e.target.value})}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+                            className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
                           />
                           <textarea
                             value={editingTask.description}
                             onChange={(e) => setEditingTask({...editingTask, description: e.target.value})}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+                            className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
                             rows={3}
                           />
                           <div className="flex gap-2">
@@ -347,15 +347,15 @@ export default function TasksPage() {
                       ) : (
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
-                            <h3 className={`text-lg font-semibold ${task.status === 'completed' ? 'line-through text-gray-500' : 'text-gray-900'}`}>
+                            <h3 className={`text-lg font-semibold ${task.status === 'completed' ? 'line-through text-gray-500 dark:text-slate-500' : 'text-gray-900 dark:text-white'}`}>
                               {task.title}
                             </h3>
                             {task.description && (
-                              <p className={`text-sm mt-1 ${task.status === 'completed' ? 'line-through text-gray-400' : 'text-gray-600'}`}>
+                              <p className={`text-sm mt-1 ${task.status === 'completed' ? 'line-through text-gray-400 dark:text-slate-500' : 'text-gray-600 dark:text-slate-300'}`}>
                                 {task.description}
                               </p>
                             )}
-                            <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                            <div className="flex items-center gap-4 mt-2 text-xs text-gray-500 dark:text-slate-400">
                               <span>Criada: {new Date(task.created_at).toLocaleString('pt-BR')}</span>
                               <span className={`px-2 py-1 rounded-full text-white ${
                                 task.status === 'completed' ? 'bg-green-500' : 
@@ -403,50 +403,50 @@ export default function TasksPage() {
 
             {/* Dashboard de Estatísticas */}
             {stats && (
-              <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+              <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-6 mb-8">
                 <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-2xl font-bold text-gray-900">📊 Dashboard & Insights</h2>
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">📊 Dashboard & Insights</h2>
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                  <div className="bg-blue-50 p-4 rounded-lg">
-                    <h3 className="text-lg font-semibold text-blue-900">📝 Total de Tarefas</h3>
-                    <p className="text-3xl font-bold text-blue-600">{stats.total_tasks}</p>
+                  <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                    <h3 className="text-lg font-semibold text-blue-900 dark:text-blue-300">📝 Total de Tarefas</h3>
+                    <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">{stats.total_tasks}</p>
                   </div>
                   
-                  <div className="bg-green-50 p-4 rounded-lg">
-                    <h3 className="text-lg font-semibold text-green-900">✅ Concluídas</h3>
-                    <p className="text-3xl font-bold text-green-600">{stats.completed_tasks}</p>
+                  <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
+                    <h3 className="text-lg font-semibold text-green-900 dark:text-green-300">✅ Concluídas</h3>
+                    <p className="text-3xl font-bold text-green-600 dark:text-green-400">{stats.completed_tasks}</p>
                   </div>
                   
-                  <div className="bg-yellow-50 p-4 rounded-lg">
-                    <h3 className="text-lg font-semibold text-yellow-900">⏳ Pendentes</h3>
-                    <p className="text-3xl font-bold text-yellow-600">{stats.pending_tasks}</p>
+                  <div className="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg">
+                    <h3 className="text-lg font-semibold text-yellow-900 dark:text-yellow-300">⏳ Pendentes</h3>
+                    <p className="text-3xl font-bold text-yellow-600 dark:text-yellow-400">{stats.pending_tasks}</p>
                   </div>
                   
-                  <div className="bg-purple-50 p-4 rounded-lg">
-                    <h3 className="text-lg font-semibold text-purple-900">📈 Taxa de Conclusão</h3>
-                    <p className="text-3xl font-bold text-purple-600">{stats.completion_rate}%</p>
+                  <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg">
+                    <h3 className="text-lg font-semibold text-purple-900 dark:text-purple-300">📈 Taxa de Conclusão</h3>
+                    <p className="text-3xl font-bold text-purple-600 dark:text-purple-400">{stats.completion_rate}%</p>
                   </div>
                   
-                  <div className="bg-indigo-50 p-4 rounded-lg">
-                    <h3 className="text-lg font-semibold text-indigo-900">📅 Hoje</h3>
-                    <p className="text-3xl font-bold text-indigo-600">{stats.tasks_today}</p>
+                  <div className="bg-indigo-50 dark:bg-indigo-900/20 p-4 rounded-lg">
+                    <h3 className="text-lg font-semibold text-indigo-900 dark:text-indigo-300">📅 Hoje</h3>
+                    <p className="text-3xl font-bold text-indigo-600 dark:text-indigo-400">{stats.tasks_today}</p>
                   </div>
                   
-                  <div className="bg-pink-50 p-4 rounded-lg">
-                    <h3 className="text-lg font-semibold text-pink-900">📆 Esta Semana</h3>
-                    <p className="text-3xl font-bold text-pink-600">{stats.tasks_this_week}</p>
+                  <div className="bg-pink-50 dark:bg-pink-900/20 p-4 rounded-lg">
+                    <h3 className="text-lg font-semibold text-pink-900 dark:text-pink-300">📆 Esta Semana</h3>
+                    <p className="text-3xl font-bold text-pink-600 dark:text-pink-400">{stats.tasks_this_week}</p>
                   </div>
                   
-                  <div className="bg-red-50 p-4 rounded-lg">
-                    <h3 className="text-lg font-semibold text-red-900">📊 Este Mês</h3>
-                    <p className="text-3xl font-bold text-red-600">{stats.tasks_this_month}</p>
+                  <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg">
+                    <h3 className="text-lg font-semibold text-red-900 dark:text-red-300">📊 Este Mês</h3>
+                    <p className="text-3xl font-bold text-red-600 dark:text-red-400">{stats.tasks_this_month}</p>
                   </div>
                   
-                  <div className="bg-teal-50 p-4 rounded-lg">
-                    <h3 className="text-lg font-semibold text-teal-900">🎯 Finalizadas Hoje</h3>
-                    <p className="text-3xl font-bold text-teal-600">{stats.completed_today}</p>
+                  <div className="bg-teal-50 dark:bg-teal-900/20 p-4 rounded-lg">
+                    <h3 className="text-lg font-semibold text-teal-900 dark:text-teal-300">🎯 Finalizadas Hoje</h3>
+                    <p className="text-3xl font-bold text-teal-600 dark:text-teal-400">{stats.completed_today}</p>
                   </div>
                 </div>
               </div>

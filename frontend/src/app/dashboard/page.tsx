@@ -115,27 +115,27 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-xl">Carregando dashboard...</div>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-slate-900">
+        <div className="text-xl text-gray-900 dark:text-white">Carregando dashboard...</div>
       </div>
     )
   }
 
   if (!stats) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-slate-900">
         <div className="text-xl text-red-500">Erro ao carregar dados</div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-900 py-8">
       <div className="max-w-6xl mx-auto px-4">
         {/* Header */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+        <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-6 mb-6">
           <div className="flex justify-between items-center">
-            <h1 className="text-3xl font-bold text-gray-900">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
               📊 Dashboard de Tarefas
             </h1>
             <div className="flex gap-4">
@@ -164,7 +164,7 @@ export default function DashboardPage() {
         </div>
 
         {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          <div className="bg-red-100 dark:bg-red-900/20 border border-red-400 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 rounded mb-4">
             {error}
           </div>
         )}
@@ -172,53 +172,53 @@ export default function DashboardPage() {
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
          
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-6">
             <div className="flex items-center">
-              <div className="p-3 rounded-full bg-blue-100 text-blue-600">
+              <div className="p-3 rounded-full bg-blue-100 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400">
                 📝
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Total de Tarefas</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.total_tasks}</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-slate-300">Total de Tarefas</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.total_tasks}</p>
               </div>
             </div>
           </div>
 
           
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-6">
             <div className="flex items-center">
-              <div className="p-3 rounded-full bg-green-100 text-green-600">
+              <div className="p-3 rounded-full bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400">
                 ✅
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Concluídas</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.completed_tasks}</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-slate-300">Concluídas</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.completed_tasks}</p>
               </div>
             </div>
           </div>
 
           
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-6">
             <div className="flex items-center">
-              <div className="p-3 rounded-full bg-yellow-100 text-yellow-600">
+              <div className="p-3 rounded-full bg-yellow-100 dark:bg-yellow-900/20 text-yellow-600 dark:text-yellow-400">
                 ⏰
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Pendentes</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.pending_tasks}</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-slate-300">Pendentes</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.pending_tasks}</p>
               </div>
             </div>
           </div>
 
           
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-6">
             <div className="flex items-center">
-              <div className="p-3 rounded-full bg-purple-100 text-purple-600">
+              <div className="p-3 rounded-full bg-purple-100 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400">
                 📈
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Taxa de Conclusão</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.completion_rate}%</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-slate-300">Taxa de Conclusão</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.completion_rate}%</p>
               </div>
             </div>
           </div>
@@ -226,48 +226,48 @@ export default function DashboardPage() {
 
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">📅 Hoje</h3>
+          <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-6">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">📅 Hoje</h3>
             <div className="space-y-2">
-              <p className="text-sm text-gray-600">Tarefas criadas: <span className="font-bold">{stats.tasks_today}</span></p>
-              <p className="text-sm text-gray-600">Tarefas concluídas: <span className="font-bold">{stats.completed_today}</span></p>
+              <p className="text-sm text-gray-600 dark:text-slate-300">Tarefas criadas: <span className="font-bold">{stats.tasks_today}</span></p>
+              <p className="text-sm text-gray-600 dark:text-slate-300">Tarefas concluídas: <span className="font-bold">{stats.completed_today}</span></p>
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">📆 Esta Semana</h3>
+          <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-6">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">📆 Esta Semana</h3>
             <div className="space-y-2">
-              <p className="text-sm text-gray-600">Tarefas criadas: <span className="font-bold">{stats.tasks_this_week}</span></p>
+              <p className="text-sm text-gray-600 dark:text-slate-300">Tarefas criadas: <span className="font-bold">{stats.tasks_this_week}</span></p>
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">🗓️ Este Mês</h3>
+          <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-6">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">🗓️ Este Mês</h3>
             <div className="space-y-2">
-              <p className="text-sm text-gray-600">Tarefas criadas: <span className="font-bold">{stats.tasks_this_month}</span></p>
+              <p className="text-sm text-gray-600 dark:text-slate-300">Tarefas criadas: <span className="font-bold">{stats.tasks_this_month}</span></p>
             </div>
           </div>
         </div>
 
         
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">🕐 Tarefas Recentes</h3>
+        <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-6">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">🕐 Tarefas Recentes</h3>
           <div className="space-y-3">
             {stats.recent_tasks.length === 0 ? (
-              <p className="text-gray-500 text-center py-4">Nenhuma tarefa encontrada</p>
+              <p className="text-gray-500 dark:text-slate-400 text-center py-4">Nenhuma tarefa encontrada</p>
             ) : (
               stats.recent_tasks.map(task => (
-                <div key={task.id} className="flex items-center justify-between p-3 bg-gray-50 rounded">
+                <div key={task.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-slate-700 rounded">
                   <div>
-                    <p className="font-medium text-gray-900">{task.title}</p>
-                    <p className="text-sm text-gray-500">
+                    <p className="font-medium text-gray-900 dark:text-white">{task.title}</p>
+                    <p className="text-sm text-gray-500 dark:text-slate-400">
                       {new Date(task.created_at).toLocaleDateString('pt-BR')}
                     </p>
                   </div>
                   <span className={`px-2 py-1 rounded text-xs ${
                     task.status === 'completed' 
-                      ? 'bg-green-100 text-green-800' 
-                      : 'bg-yellow-100 text-yellow-800'
+                      ? 'bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-300' 
+                      : 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-300'
                   }`}>
                     {task.status === 'completed' ? 'Concluída' : 'Pendente'}
                   </span>
