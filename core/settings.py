@@ -163,12 +163,28 @@ SIMPLE_JWT = {
     'ROTATE_REFRESH_TOKENS': True,
 }
 
-# CORS Configuration - Permitir Railway e localhost
+# CORS Configuration - Permitir Railway, Vercel e localhost
 if not DEBUG:
-    CORS_ALLOW_ALL_ORIGINS = True
+    CORS_ALLOWED_ORIGINS = [
+        "https://app-tarefas-insights.vercel.app",
+        "https://app-tarefas-insights-git-main.vercel.app",
+        "https://app-tarefas-insights-edvaldoglima23.vercel.app",
+    ]
 else:
     CORS_ALLOWED_ORIGINS = [
         "http://localhost:3000",
         "https://localhost:3000",
     ]
+
 CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOWED_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
