@@ -22,12 +22,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-eo)x)-)n*hxoz6esfbs6==a68)*3_-5s5vi445!2z*5o9psfmx'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-eo)x)-)n*hxoz6esfbs6==a68)*3_-5s5vi445!2z*5o9psfmx')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost').split(',')
 
 
 # Application definition
@@ -82,11 +82,11 @@ WSGI_APPLICATION = 'core.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('DJANGO_DB_NAME', 'tarefas'),
-        'USER': os.environ.get('DJANGO_DB_USER', 'user'),
-        'PASSWORD': os.environ.get('DJANGO_DB_PASSWORD', 'senha123'),
-        'HOST': os.environ.get('DJANGO_DB_HOST', 'localhost'),
-        'PORT': '5432',
+        'NAME': os.environ.get('PGDATABASE', 'tarefas'),
+        'USER': os.environ.get('PGUSER', 'user'),
+        'PASSWORD': os.environ.get('PGPASSWORD', 'senha123'),
+        'HOST': os.environ.get('PGHOST', 'localhost'),
+        'PORT': os.environ.get('PGPORT', '5432'),
     }
 }
 
@@ -151,8 +151,18 @@ SIMPLE_JWT = {
     'ROTATE_REFRESH_TOKENS': True,
 }
 
-# CORS Configuration
+# CORS Configuration - Permitir Railway e localhost
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
+    "https://localhost:3000",
 ]
+
+# Em produção, permitir todas as origens temporariamente
+if not DEBUG:
+    CORS_ALLOW_ALL_ORIGINS = True
+else:
+    CORS_ALLOWED_ORIGINS = [
+        "http://localhost:3000",
+        "https://localhost:3000",
+    ]
 CORS_ALLOW_CREDENTIALS = True
