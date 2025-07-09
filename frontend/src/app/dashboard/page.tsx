@@ -264,13 +264,13 @@ export default function DashboardPage() {
                       {new Date(task.created_at).toLocaleDateString('pt-BR')}
                     </p>
                   </div>
-                  <span className={`px-2 py-1 rounded text-xs ${
-                    task.status === 'completed' 
-                      ? 'bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-300' 
-                      : 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-300'
-                  }`}>
-                    {task.status === 'completed' ? 'Concluída' : 'Pendente'}
-                  </span>
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          task.status === 'completed' 
+                            ? 'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-300' 
+                            : 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-600 dark:text-yellow-300'
+                        }`}>
+                          {task.status === 'completed' ? '✅ Concluída' : '⏳ Pendente'}
+                        </span>
                 </div>
               ))
             )}
