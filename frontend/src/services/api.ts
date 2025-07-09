@@ -1,10 +1,8 @@
 import axios from 'axios'
 import type { Task, Statistics, MotivationalQuote, FilterOptions, SearchResults } from '@/types'
 
-// Usar Railway sempre, exceto em desenvolvimento local
-const API_BASE_URL = typeof window !== 'undefined' && window.location.hostname === 'localhost'
-  ? 'http://localhost:8000/api'
-  : 'https://web-production-02fc5.up.railway.app/api'
+// FORÇAR SEMPRE RAILWAY - CORREÇÃO DEFINITIVA
+const API_BASE_URL = 'https://web-production-02fc5.up.railway.app/api'
 
 const api = axios.create({
   baseURL: API_BASE_URL,
