@@ -62,6 +62,57 @@ export default function DashboardPage() {
     router.push('/')
   }
 
+  const [exportingCSV, setExportingCSV] = useState(false)
+
+  const handleExportCSV = async () => {
+    setExportingCSV(true)
+    setError('')
+    
+    try {
+      const token = localStorage.getItem('token')
+      if (!token) {
+        router.push('/')
+        return
+      }
+
+      const response = await axios.get('http://localhost:8000/api/tasks/export_csv/', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        responseType: 'blob'
+      })
+
+      // Gerar nome do arquivo mais profissional
+      const now = new Date()
+      const dateStr = now.toISOString().split('T')[0]
+      const timeStr = now.toTimeString().split(' ')[0].replace(/:/g, '-')
+      const filename = `relatorio_tarefas_${dateStr}_${timeStr}.csv`
+
+      // Criar URL temporária para o blob
+      const url = window.URL.createObjectURL(response.data)
+      
+      // Criar link temporário para download
+      const link = document.createElement('a')
+      link.href = url
+      link.download = filename
+      
+      // Adicionar ao DOM, clicar e remover
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      
+      // Limpar URL temporária
+      window.URL.revokeObjectURL(url)
+      
+      console.log(`✓ CSV exported successfully: ${filename}`)
+    } catch (error) {
+      console.error('Error exporting CSV:', error)
+      setError('Erro ao exportar relatório CSV')
+    } finally {
+      setExportingCSV(false)
+    }
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -93,6 +144,14 @@ export default function DashboardPage() {
                 className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
               >
                 Ver Tarefas
+              </button>
+              <button
+                onClick={handleExportCSV}
+                disabled={exportingCSV}
+                className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 flex items-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Exportar relatório completo de tarefas em formato CSV"
+              >
+                {exportingCSV ? '⏳ Gerando...' : '📊 Exportar Relatório'}
               </button>
               <button
                 onClick={handleLogout}

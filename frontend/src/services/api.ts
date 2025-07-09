@@ -97,6 +97,13 @@ export const tasksAPI = {
   getMotivationalQuote: async (): Promise<MotivationalQuote> => {
     const response = await api.get('/tasks/motivacional/')
     return response.data
+  },
+
+  exportCSV: async (): Promise<Blob> => {
+    const response = await api.get('/tasks/export_csv/', {
+      responseType: 'blob'
+    })
+    return response.data
   }
 }
 

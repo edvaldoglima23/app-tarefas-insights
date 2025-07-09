@@ -11,6 +11,7 @@ interface TaskState {
   searchResults: SearchResults | null
   loading: {
     tasks: boolean
+    searching: boolean
     statistics: boolean
     quote: boolean
     creating: boolean
@@ -29,6 +30,7 @@ interface TaskActions {
   toggleTaskStatus: (task: Task) => Promise<void>
   fetchStatistics: () => Promise<void>
   fetchQuote: () => Promise<void>
+  exportTasksCSV: () => Promise<void>
   setFilters: (filters: Partial<FilterOptions>) => void
   clearFilters: () => void
   clearError: () => void
@@ -51,6 +53,7 @@ export const useTaskStore = create<TaskState & TaskActions>()(
     searchResults: null,
     loading: {
       tasks: false,
+      searching: false,
       statistics: false,
       quote: false,
       creating: false,
@@ -84,7 +87,7 @@ export const useTaskStore = create<TaskState & TaskActions>()(
       const currentFilters = filters ? { ...get().filters, ...filters } : get().filters
       
       set((state) => {
-        state.loading.tasks = true
+        state.loading.searching = true
         state.error = null
         state.filters = currentFilters
       })
@@ -94,11 +97,11 @@ export const useTaskStore = create<TaskState & TaskActions>()(
         set((state) => {
           state.tasks = results.results
           state.searchResults = results
-          state.loading.tasks = false
+          state.loading.searching = false
         })
       } catch (error: any) {
         set((state) => {
-          state.loading.tasks = false
+          state.loading.searching = false
           state.error = error.message || 'Erro ao buscar tarefas'
         })
       }
@@ -274,18 +277,77 @@ export const useTaskStore = create<TaskState & TaskActions>()(
       }
     },
 
+    exportTasksCSV: async () => {
+      set((state) => {
+        state.loading.tasks = true
+        state.error = null
+      })
+
+      try {
+        const blob = await tasksAPI.exportCSV()
+        
+        
+        const now = new Date()
+        const dateStr = now.toISOString().split('T')[0]
+        const timeStr = now.toTimeString().split(' ')[0].replace(/:/g, '-')
+        const filename = `relatorio_tarefas_${dateStr}_${timeStr}.csv`
+        
+       
+        const url = window.URL.createObjectURL(blob)
+        
+        
+        const link = document.createElement('a')
+        link.href = url
+        link.download = filename
+        
+        
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        
+        
+        window.URL.revokeObjectURL(url)
+        
+        set((state) => {
+          state.loading.tasks = false
+        })
+        
+        console.log(`✓ CSV exported successfully: ${filename}`)
+      } catch (error: any) {
+        set((state) => {
+          state.loading.tasks = false
+          state.error = error.message || 'Erro ao exportar relatório CSV'
+        })
+        console.error('Error exporting CSV:', error)
+      }
+    },
+
     setFilters: (newFilters) => {
       set((state) => {
         state.filters = { ...state.filters, ...newFilters }
       })
     },
 
-    clearFilters: () => {
+    clearFilters: async () => {
       set((state) => {
+        state.loading.searching = true
         state.filters = initialFilters
         state.searchResults = null
+        state.error = null
       })
-      get().fetchTasks()
+      
+      try {
+        const tasks = await tasksAPI.getAll()
+        set((state) => {
+          state.tasks = tasks
+          state.loading.searching = false
+        })
+      } catch (error: any) {
+        set((state) => {
+          state.loading.searching = false
+          state.error = error.message || 'Erro ao carregar tarefas'
+        })
+      }
     },
 
     clearError: () => {

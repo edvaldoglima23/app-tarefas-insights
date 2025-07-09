@@ -16,6 +16,7 @@ interface AuthActions {
   logout: () => void
   clearError: () => void
   setUser: (user: User) => void
+  checkAuthStatus: () => Promise<void>
 }
 
 export const useAuthStore = create<AuthState & AuthActions>()(
@@ -72,7 +73,58 @@ export const useAuthStore = create<AuthState & AuthActions>()(
 
       clearError: () => set({ error: null }),
 
-      setUser: (user: User) => set({ user })
+      setUser: (user: User) => set({ user }),
+
+      checkAuthStatus: async () => {
+        const token = localStorage.getItem('token')
+        if (!token) {
+          set({
+            user: null,
+            token: null,
+            isAuthenticated: false,
+            error: null
+          })
+          return
+        }
+
+        try {
+          const response = await fetch('http://localhost:8000/api/tasks/', {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          })
+          
+          if (response.status === 401) {
+            // Token inválido ou expirado
+            localStorage.removeItem('token')
+            localStorage.removeItem('refresh')
+            set({
+              user: null,
+              token: null,
+              isAuthenticated: false,
+              error: null
+            })
+          } else if (response.status === 200) {
+            // Token válido - confirmar autenticação
+            set({
+              token,
+              isAuthenticated: true,
+              error: null
+            })
+          }
+        } catch (error) {
+          // Erro de conexão - limpar autenticação por segurança
+          console.log('Erro ao verificar token:', error)
+          localStorage.removeItem('token')
+          localStorage.removeItem('refresh')
+          set({
+            user: null,
+            token: null,
+            isAuthenticated: false,
+            error: null
+          })
+        }
+      }
     }),
     {
       name: 'auth-storage',

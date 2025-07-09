@@ -30,6 +30,7 @@ export default function TasksPage() {
     toggleTaskStatus,
     fetchStatistics,
     fetchQuote,
+    exportTasksCSV,
     setFilters,
     clearFilters,
     clearError
@@ -142,12 +143,22 @@ export default function TasksPage() {
                 <h1 className="text-3xl font-bold text-gray-900">
                   🎯 Minhas Tarefas & Dashboard
                 </h1>
-                <button
-                  onClick={handleLogout}
-                  className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-                >
-                  Sair
-                </button>
+                <div className="flex gap-4">
+                  <button
+                    onClick={exportTasksCSV}
+                    disabled={loading.tasks}
+                    className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 flex items-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    title="Exportar relatório completo de tarefas em formato CSV"
+                  >
+                    {loading.tasks ? '⏳ Gerando...' : '📊 Exportar Relatório'}
+                  </button>
+                  <button
+                    onClick={handleLogout}
+                    className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+                  >
+                    Sair
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -262,15 +273,17 @@ export default function TasksPage() {
                 <div className="flex gap-2 mt-4">
                   <button
                     onClick={handleSearch}
-                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                    disabled={loading.searching}
+                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
                   >
-                    Buscar
+                    {loading.searching ? '🔍 Buscando...' : 'Buscar'}
                   </button>
                   <button
                     onClick={handleClearFilters}
-                    className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+                    disabled={loading.searching}
+                    className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
                   >
-                    Limpar
+                    {loading.searching ? '🔄 Limpando...' : 'Limpar'}
                   </button>
                 </div>
                 
@@ -285,8 +298,16 @@ export default function TasksPage() {
               </div>
 
               {/* Lista de Tarefas */}
-              <div className="space-y-4">
-                {tasks.length === 0 ? (
+              <div className={`space-y-4 transition-opacity duration-300 ${loading.searching ? 'opacity-50' : 'opacity-100'}`}>
+                {loading.searching && (
+                  <div className="text-center py-4 text-blue-600">
+                    <div className="inline-flex items-center gap-2">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                      Atualizando lista...
+                    </div>
+                  </div>
+                )}
+                {tasks.length === 0 && !loading.searching ? (
                   <div className="text-center py-8 text-gray-500">
                     {searchResults ? 'Nenhuma tarefa encontrada com os filtros aplicados' : 'Nenhuma tarefa criada ainda'}
                   </div>

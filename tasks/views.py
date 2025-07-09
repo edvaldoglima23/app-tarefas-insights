@@ -4,8 +4,10 @@ from rest_framework.decorators import action  # noqa
 from rest_framework.response import Response  # noqa
 from rest_framework.permissions import IsAuthenticated  # noqa
 from django.db.models import Count, Q  # noqa
+from django.http import HttpResponse
 from datetime import datetime, timedelta
 import requests
+import csv
 from .models import Task
 from .serializers import TaskSerializer, TaskUpdateSerializer
 import random
@@ -27,8 +29,13 @@ class TaskViewSet(viewsets.ModelViewSet):
         """
         queryset = Task.objects.filter(user=self.request.user)
         
+        # Verificar se o request tem query_params (DRF Request) ou usar GET (Django HttpRequest)
+        if hasattr(self.request, 'query_params'):
+            query_params = self.request.query_params
+        else:
+            query_params = self.request.GET
         
-        search = self.request.query_params.get('search')
+        search = query_params.get('search')
         if search:
             queryset = queryset.filter(
                 Q(title__icontains=search) | 
@@ -36,13 +43,13 @@ class TaskViewSet(viewsets.ModelViewSet):
             )
         
         
-        status_filter = self.request.query_params.get('status')
+        status_filter = query_params.get('status')
         if status_filter:
             queryset = queryset.filter(status=status_filter)
         
         
-        date_from = self.request.query_params.get('date_from')
-        date_to = self.request.query_params.get('date_to')
+        date_from = query_params.get('date_from')
+        date_to = query_params.get('date_to')
         
         if date_from:
             try:
@@ -58,7 +65,7 @@ class TaskViewSet(viewsets.ModelViewSet):
                 pass  
         
        
-        ordering = self.request.query_params.get('ordering', '-created_at')
+        ordering = query_params.get('ordering', '-created_at')
         if ordering in ['created_at', '-created_at', 'title', '-title', 'status', '-status']:
             queryset = queryset.order_by(ordering)
         else:
@@ -295,3 +302,80 @@ class TaskViewSet(viewsets.ModelViewSet):
             'source': 'LOCAL',
             'message': 'APIs externas indisponíveis - usando frase local'
         })
+    
+    @action(detail=False, methods=['get'])
+    def export_csv(self, request):
+        """
+        Exporta as tarefas do usuário em formato CSV profissional
+        """
+        # Obter tarefas do usuário com filtros aplicados
+        queryset = self.get_queryset()
+        
+        # Gerar nome do arquivo mais profissional
+        username = request.user.username
+        today = datetime.now().strftime('%Y-%m-%d')
+        filename = f'tarefas_{username}_{today}.csv'
+        
+        # Criar resposta HTTP com tipo CSV e encoding UTF-8
+        response = HttpResponse(
+            content_type='text/csv; charset=utf-8',
+            headers={
+                'Content-Disposition': f'attachment; filename="{filename}"'
+            },
+        )
+        
+        # Adicionar BOM para Excel reconhecer UTF-8
+        response.write('\ufeff')
+        
+        # Configurar writer CSV com delimitador ponto e vírgula (melhor para Excel BR)
+        writer = csv.writer(response, delimiter=';', quoting=csv.QUOTE_ALL)
+        
+        # Cabeçalho profissional
+        writer.writerow([
+            'ID',
+            'Título',
+            'Descrição',
+            'Status',
+            'Prioridade',
+            'Data de Criação',
+            'Hora de Criação',
+            'Dias Desde Criação',
+            'Usuário'
+        ])
+        
+        # Escrever dados das tarefas com formatação profissional
+        for task in queryset:
+            # Calcular dias desde criação
+            days_since_creation = (datetime.now().date() - task.created_at.date()).days
+            
+            # Status em português
+            status_map = {
+                'pending': 'Pendente',
+                'completed': 'Concluída',
+                'cancelled': 'Cancelada'
+            }
+            
+            # Determinar prioridade baseada na idade da tarefa
+            if task.status == 'pending':
+                if days_since_creation > 7:
+                    priority = 'Alta'
+                elif days_since_creation > 3:
+                    priority = 'Média'
+                else:
+                    priority = 'Baixa'
+            else:
+                priority = 'N/A'
+            
+            writer.writerow([
+                task.id,
+                task.title,
+                task.description or 'Sem descrição',
+                status_map.get(task.status, task.status),
+                priority,
+                task.created_at.strftime('%d/%m/%Y'),
+                task.created_at.strftime('%H:%M'),
+                f'{days_since_creation} dias',
+                request.user.username
+            ])
+        
+        return response

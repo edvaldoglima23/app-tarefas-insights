@@ -68,55 +68,40 @@ describe('TaskStore', () => {
   })
 
   describe('fetchTasks', () => {
-    it('deve carregar tarefas com sucesso', async () => {
-      console.log('🧪 TESTE 1: Carregando tarefas com sucesso...')
-      
-      // Mock da resposta da API
+    it('should fetch tasks successfully', async () => {
       mockTasksAPI.getAll.mockResolvedValue(mockTasks)
       
       const store = useTaskStore.getState()
-      
-      // Executa a função
       await store.fetchTasks()
       
-      // Verifica se a API foi chamada
       expect(mockTasksAPI.getAll).toHaveBeenCalledTimes(1)
       
-      // Verifica se as tarefas foram carregadas no estado
       const newState = useTaskStore.getState()
       expect(newState.tasks).toEqual(mockTasks)
       expect(newState.loading.tasks).toBe(false)
       expect(newState.error).toBeNull()
       
-      console.log('✅ Tarefas carregadas com sucesso!')
+      console.log(`✓ Tasks fetched successfully: ${mockTasks.length} tasks loaded`)
     })
 
-    it('deve tratar erro ao carregar tarefas', async () => {
-      console.log('🧪 TESTE 2: Tratando erro ao carregar tarefas...')
-      
-      // Mock de erro da API
+    it('should handle fetch tasks error', async () => {
       const errorMessage = 'Erro de conexão'
       mockTasksAPI.getAll.mockRejectedValue(new Error(errorMessage))
       
       const store = useTaskStore.getState()
-      
-      // Executa a função
       await store.fetchTasks()
       
-      // Verifica se o erro foi tratado
       const newState = useTaskStore.getState()
       expect(newState.tasks).toEqual([])
       expect(newState.loading.tasks).toBe(false)
       expect(newState.error).toBe(errorMessage)
       
-      console.log('✅ Erro tratado corretamente!')
+      console.log(`✓ Fetch tasks error handled: ${errorMessage}`)
     })
   })
 
   describe('createTask', () => {
-    it('deve criar uma nova tarefa com sucesso', async () => {
-      console.log('🧪 TESTE 3: Criando nova tarefa...')
-      
+    it('should create new task successfully', async () => {
       const newTaskData = {
         title: 'Nova tarefa',
         description: 'Descrição da nova tarefa',
@@ -130,7 +115,6 @@ describe('TaskStore', () => {
         user: 1
       }
       
-      // Mock da resposta da API
       mockTasksAPI.create.mockResolvedValue(createdTask)
       mockTasksAPI.getStatistics.mockResolvedValue({
         total_tasks: 1,
@@ -145,53 +129,43 @@ describe('TaskStore', () => {
       })
       
       const store = useTaskStore.getState()
-      
-      // Executa a função
       await store.createTask(newTaskData)
       
-      // Verifica se a API foi chamada
       expect(mockTasksAPI.create).toHaveBeenCalledWith(newTaskData)
       
-      // Verifica se a tarefa foi adicionada ao estado
       const newState = useTaskStore.getState()
       expect(newState.tasks).toContainEqual(createdTask)
       expect(newState.loading.creating).toBe(false)
       expect(newState.error).toBeNull()
       
-      console.log('✅ Nova tarefa criada com sucesso!')
+      console.log(`Task created successfully: "${createdTask.title}"`)
     })
 
-    it('deve tratar erro ao criar tarefa', async () => {
-      console.log('🧪 TESTE 4: Tratando erro ao criar tarefa...')
-      
+    it('should handle create task error', async () => {
       const newTaskData = {
         title: 'Nova tarefa',
         description: 'Descrição da nova tarefa',
         status: 'pending' as const
       }
       
-      // Mock de erro da API
       const errorMessage = 'Erro ao criar tarefa'
       mockTasksAPI.create.mockRejectedValue(new Error(errorMessage))
       
       const store = useTaskStore.getState()
-      
-      // Executa a função
       await store.createTask(newTaskData)
       
-      // Verifica se o erro foi tratado
       const newState = useTaskStore.getState()
       expect(newState.tasks).toEqual([])
       expect(newState.loading.creating).toBe(false)
       expect(newState.error).toBe(errorMessage)
       
-      console.log('✅ Erro ao criar tarefa tratado corretamente!')
+      console.log(`✓ Create task error handled: ${errorMessage}`)
     })
   })
 
   describe('setFilters', () => {
     it('deve atualizar filtros corretamente', () => {
-      console.log('🧪 TESTE 5: Atualizando filtros...')
+      console.log('TESTE 5: Atualizando filtros...')
       
       const store = useTaskStore.getState()
       
@@ -209,13 +183,13 @@ describe('TaskStore', () => {
       expect(newState.filters.status).toBe('pending')
       expect(newState.filters.ordering).toBe('-created_at') // Deve manter o valor anterior
       
-      console.log('✅ Filtros atualizados corretamente!')
+      console.log('Filtros atualizados corretamente!')
     })
   })
 
   describe('clearFilters', () => {
     it('deve limpar filtros e buscar tarefas', async () => {
-      console.log('🧪 TESTE 6: Limpando filtros...')
+      console.log('TESTE 6: Limpando filtros...')
       
       // Mock da resposta da API
       mockTasksAPI.getAll.mockResolvedValue(mockTasks)
@@ -237,13 +211,13 @@ describe('TaskStore', () => {
       // Verifica se fetchTasks foi chamado
       expect(mockTasksAPI.getAll).toHaveBeenCalledTimes(1)
       
-      console.log('✅ Filtros limpos e tarefas recarregadas!')
+      console.log('Filtros limpos e tarefas recarregadas!')
     })
   })
 
   describe('clearError', () => {
     it('deve limpar mensagem de erro', () => {
-      console.log('🧪 TESTE 7: Limpando erro...')
+      console.log('TESTE 7: Limpando erro...')
       
       // Define um erro no estado
       useTaskStore.setState({ error: 'Erro de teste' })
@@ -257,7 +231,7 @@ describe('TaskStore', () => {
       const newState = useTaskStore.getState()
       expect(newState.error).toBeNull()
       
-      console.log('✅ Erro limpo com sucesso!')
+      console.log('Erro limpo com sucesso!')
     })
   })
 }) 
