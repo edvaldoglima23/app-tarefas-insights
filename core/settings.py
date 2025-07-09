@@ -85,6 +85,8 @@ if DATABASE_URL:
     DATABASES = {
         'default': dj_database_url.parse(DATABASE_URL)
     }
+    # Adicionar configuração SSL para Railway
+    DATABASES['default']['OPTIONS'] = {'sslmode': 'require'}
 else:
     print("DATABASE_URL não encontrada, usando variáveis individuais...")
     DATABASES = {
@@ -95,6 +97,7 @@ else:
             'PASSWORD': os.environ.get('PGPASSWORD', ''),
             'HOST': os.environ.get('PGHOST', 'localhost'),
             'PORT': os.environ.get('PGPORT', '5432'),
+            'OPTIONS': {'sslmode': 'require'},
         }
     }
 
@@ -130,6 +133,7 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
