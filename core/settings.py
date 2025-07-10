@@ -164,25 +164,25 @@ SIMPLE_JWT = {
 }
 
 
-if not DEBUG:
-    CORS_ALLOWED_ORIGINS = [
-        "https://app-tarefas-insights-cj84dicaz-edvaldo-limas-projects.vercel.app",
-        "https://app-tarefas-insights.vercel.app",
-        "https://app-tarefas-insights-git-main.vercel.app",
-        "https://app-tarefas-insights-edvaldoglima23.vercel.app",
-        
-    ]
-    
-    CORS_ALLOW_ALL_ORIGINS = False
-    CORS_ALLOWED_ORIGIN_REGEXES = [
-        r"^https://app-tarefas-insights(-[a-z0-9]+)*-edvaldo-limas-projects\.vercel\.app$",
-        r"^https://app-tarefas-insights(-[a-z0-9]+)?\.vercel\.app$",
-    ]
-else:
-    CORS_ALLOWED_ORIGINS = [
-        "http://localhost:3000",
-        "https://localhost:3000",
-    ]
+# CORS Configuration - Funcionará em qualquer modo (DEBUG=True ou False)
+CORS_ALLOWED_ORIGINS = [
+    # URLs explícitas do Vercel (principais)
+    "https://app-tarefas-insights-cj84dicaz-edvaldo-limas-projects.vercel.app",
+    "https://app-tarefas-insights.vercel.app",
+    "https://app-tarefas-insights-git-main.vercel.app",
+    "https://app-tarefas-insights-edvaldoglima23.vercel.app",
+    # URLs de desenvolvimento local
+    "http://localhost:3000",
+    "https://localhost:3000",
+]
+
+CORS_ALLOW_ALL_ORIGINS = False
+
+# Regex patterns para cobrir URLs temporárias do Vercel
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^https://app-tarefas-insights(-[a-z0-9]+)*-edvaldo-limas-projects\.vercel\.app$",
+    r"^https://app-tarefas-insights(-[a-z0-9]+)?\.vercel\.app$",
+]
 
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_HEADERS = [
