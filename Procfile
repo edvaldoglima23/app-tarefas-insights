@@ -1,1 +1,1 @@
-web: bash start.sh 
+web: python manage.py migrate && python force_create_superuser.py && gunicorn --bind 0.0.0.0:$PORT core.wsgi:application 
