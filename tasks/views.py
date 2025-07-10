@@ -228,99 +228,109 @@ class TaskViewSet(viewsets.ModelViewSet):
         print("=== FUNÇÃO MOTIVACIONAL CHAMADA ===")
         print("Usuario:", request.user)       
        
-        # Tentativa 1: API alternativa ZenQuotes (mais confiável)
-        try:
-            print("Tentativa 1: API alternativa ZenQuotes...")
-            
-            session = requests.Session()
-            session.headers.update({
-                'User-Agent': 'TaskApp/1.0',
-                'Accept': 'application/json'
-            })
-            
-            url = 'https://zenquotes.io/api/random'
-            print(f"Fazendo requisição para: {url}")
-            response = session.get(url, timeout=10, verify=False)
-            
-            print("Status code ZenQuotes:", response.status_code)
-            
-            if response.status_code == 200:
-                print("✅ ZenQuotes funcionou! Response:", response.text[:100], "..." if len(response.text) > 100 else "")
-                data = response.json()
-                
-                # ZenQuotes retorna uma lista com um item
-                if isinstance(data, list) and len(data) > 0:
-                    quote = data[0]
-                    return Response({
-                        'content': quote.get('q', '').strip(),
-                        'author': quote.get('a', '').strip(),
-                        'tag': 'inspiração',
-                        'success': True,
-                        'source': 'ZENQUOTES_API'
-                    })
-                
-        except Exception as e:
-            print(f"❌ Erro ZenQuotes: {type(e).__name__}: {str(e)}")
-
-        # Tentativa 2: Quotable com IP direto (contornando DNS)
-        try:
-            print("Tentativa 2: Quotable via IP direto...")
-            
-            # IP do api.quotable.io (pode mudar, mas é um teste)
-            import socket
+        # Tentativa 1: Quotable API via múltiplos IPs conhecidos
+        quotable_ips = [
+            '54.230.130.82',   # CloudFront IP comum para api.quotable.io  
+            '54.230.132.82',   # CloudFront backup
+            '99.84.238.71',    # CloudFront alternativo
+            '13.32.65.33'      # CloudFront adicional
+        ]
+        
+        for i, ip in enumerate(quotable_ips, 1):
             try:
-                ip = socket.gethostbyname('api.quotable.io')
-                print(f"IP resolvido para api.quotable.io: {ip}")
+                print(f"Tentativa {i}: Quotable API via IP {ip}...")
+                
+                # Desabilitar warnings SSL
+                import urllib3
+                urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+                
                 url = f'https://{ip}/random'
                 
                 session = requests.Session()
                 session.headers.update({
-                    'Host': 'api.quotable.io',  # Header Host obrigatório
-                    'User-Agent': 'TaskApp/1.0',
+                    'Host': 'api.quotable.io',  # Header Host obrigatório para CDN
+                    'User-Agent': 'Mozilla/5.0 (compatible; TaskApp/1.0)',
+                    'Accept': 'application/json',
+                    'Accept-Encoding': 'gzip, deflate',
+                    'Connection': 'keep-alive'
+                })
+                
+                print(f"Fazendo requisição para: {url} com Host: api.quotable.io")
+                response = session.get(url, timeout=15, verify=False)
+                
+                print(f"Status code Quotable IP {ip}:", response.status_code)
+                
+                if response.status_code == 200:
+                    print(f"✅ Quotable via IP {ip} funcionou! Response:", response.text[:100], "..." if len(response.text) > 100 else "")
+                    data = response.json()
+                    
+                    # Validar se é resposta válida da Quotable
+                    if 'content' in data and 'author' in data:
+                        return Response({
+                            'content': data.get('content', ''),
+                            'author': data.get('author', ''),
+                            'tag': data.get('tags', ['Famous Quotes'])[0] if data.get('tags') else 'inspiração',
+                            'success': True,
+                            'source': 'QUOTABLE_API',
+                            'api_id': data.get('_id', ''),
+                            'length': data.get('length', 0),
+                            'ip_used': ip
+                        })
+                else:
+                    print(f"❌ Quotable IP {ip} retornou status {response.status_code}")
+                    
+            except Exception as e:
+                print(f"❌ Erro Quotable IP {ip}: {type(e).__name__}: {str(e)}")
+                continue
+
+        # Tentativa 2: Quotable via DNS público (Google/Cloudflare)
+        try:
+            print("Tentativa final: Quotable com DNS público...")
+            
+            # Forçar uso de DNS público
+            import socket
+            original_getaddrinfo = socket.getaddrinfo
+            
+            def custom_getaddrinfo(host, port, family=0, type=0, proto=0, flags=0):
+                if host == 'api.quotable.io':
+                    # Tentar DNS do Google primeiro
+                    import subprocess
+                    try:
+                        result = subprocess.run(['nslookup', 'api.quotable.io', '8.8.8.8'], 
+                                              capture_output=True, text=True, timeout=5)
+                        print(f"DNS Google lookup result: {result.stdout[:200]}")
+                    except:
+                        pass
+                
+                return original_getaddrinfo(host, port, family, type, proto, flags)
+            
+            socket.getaddrinfo = custom_getaddrinfo
+            
+            try:
+                url = 'https://api.quotable.io/random'
+                response = requests.get(url, timeout=20, verify=False, headers={
+                    'User-Agent': 'Mozilla/5.0 (compatible; TaskApp/1.0)',
                     'Accept': 'application/json'
                 })
                 
-                response = session.get(url, timeout=10, verify=False)
-                
                 if response.status_code == 200:
-                    print("✅ Quotable via IP funcionou!")
+                    print("✅ Quotable com DNS público funcionou!")
                     data = response.json()
                     
                     return Response({
                         'content': data.get('content', ''),
                         'author': data.get('author', ''),
-                        'tag': data.get('tags', ['inspiração'])[0] if data.get('tags') else 'inspiração',
+                        'tag': data.get('tags', ['Famous Quotes'])[0] if data.get('tags') else 'inspiração',
                         'success': True,
-                        'source': 'QUOTABLE_VIA_IP'
+                        'source': 'QUOTABLE_API_DNS'
                     })
                     
-            except socket.gaierror:
-                print("❌ Não foi possível resolver DNS para IP")
+            finally:
+                # Restaurar função original
+                socket.getaddrinfo = original_getaddrinfo
                 
         except Exception as e:
-            print(f"❌ Erro Quotable via IP: {type(e).__name__}: {str(e)}")
-
-        # Tentativa 3: API JsonQuotes
-        try:
-            print("Tentativa 3: API JsonQuotes...")
-            
-            url = 'https://api.jsonquotes.com/random'
-            response = requests.get(url, timeout=10, verify=False)
-            
-            if response.status_code == 200:
-                print("✅ JsonQuotes funcionou!")
-                data = response.json()
-                
-                return Response({
-                    'content': data.get('quote', ''),
-                    'author': data.get('author', ''),
-                    'tag': 'inspiração',
-                    'success': True,
-                    'source': 'JSONQUOTES_API'
-                })
-                
-        except Exception as e:
-            print(f"❌ Erro JsonQuotes: {type(e).__name__}: {str(e)}")
+            print(f"❌ Erro Quotable DNS público: {type(e).__name__}: {str(e)}")
         
         
         
