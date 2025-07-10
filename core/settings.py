@@ -175,7 +175,7 @@ if not DEBUG:
     
     CORS_ALLOW_ALL_ORIGINS = False
     CORS_ALLOWED_ORIGIN_REGEXES = [
-        r"^https://app-tarefas-insights(-[a-z0-9]+)?(-[a-z0-9]+)?(-[a-z0-9]+)?(-[a-z0-9]+)?(-[a-z0-9]+)?(-[a-z0-9]+)?(-[a-z0-9]+)?(-[a-z0-9]+)?(-[a-z0-9]+)?(-[a-z0-9]+)?(-[a-z0-9]+)?-edvaldo-limas-projects\.vercel\.app$",
+        r"^https://app-tarefas-insights(-[a-z0-9]+)*-edvaldo-limas-projects\.vercel\.app$",
         r"^https://app-tarefas-insights(-[a-z0-9]+)?\.vercel\.app$",
     ]
 else:
