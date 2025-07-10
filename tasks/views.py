@@ -351,3 +351,40 @@ class TaskViewSet(viewsets.ModelViewSet):
             ])
         
         return response
+
+    @action(detail=False, methods=['get'], url_path='diagnostico')
+    def diagnostico(self, request):
+        """
+        Endpoint de diagnóstico: testa conexões HTTPS para vários domínios e retorna status.
+        """
+        domínios = [
+            ('Quotable API', 'https://api.quotable.io/random'),
+            ('HTTPBin', 'https://httpbin.org/get'),
+            ('Google', 'https://www.google.com'),
+            ('GitHub', 'https://api.github.com'),
+            ('ZenQuotes', 'https://zenquotes.io/api/random'),
+            ('JsonPlaceholder', 'https://jsonplaceholder.typicode.com/todos/1'),
+        ]
+        resultados = []
+        for nome, url in domínios:
+            try:
+                r = requests.get(url, timeout=6)
+                resultados.append({
+                    'nome': nome,
+                    'url': url,
+                    'status_code': r.status_code,
+                    'ok': r.ok,
+                    'erro': None
+                })
+            except Exception as e:
+                resultados.append({
+                    'nome': nome,
+                    'url': url,
+                    'status_code': None,
+                    'ok': False,
+                    'erro': str(e)
+                })
+        return Response({
+            'diagnostico': resultados,
+            'mensagem': 'Se apenas a Quotable API falhar, o problema é externo ao seu código.'
+        })
