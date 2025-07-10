@@ -10,17 +10,42 @@ const api = axios.create({
 })
 
 api.interceptors.request.use((config) => {
+  console.log('🌐 [API] Fazendo requisição:', {
+    method: config.method?.toUpperCase(),
+    url: config.url,
+    baseURL: config.baseURL,
+    fullUrl: `${config.baseURL || ''}${config.url || ''}`
+  })
+  
   const token = localStorage.getItem('token')
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
+    console.log('🔑 [API] Token adicionado ao header')
+  } else {
+    console.log('⚠️ [API] Nenhum token encontrado')
   }
   return config
 })
 
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    console.log('✅ [API] Resposta recebida:', {
+      status: response.status,
+      url: response.config.url,
+      data: response.data
+    })
+    return response
+  },
   (error) => {
+    console.error('❌ [API] Erro na resposta:', {
+      status: error.response?.status,
+      url: error.config?.url,
+      data: error.response?.data,
+      message: error.message
+    })
+    
     if (error.response?.status === 401) {
+      console.log('🚪 [API] Token inválido - redirecionando para login')
       localStorage.removeItem('token')
       window.location.href = '/'
     }
@@ -91,13 +116,37 @@ export const tasksAPI = {
   },
 
   getStatistics: async (): Promise<Statistics> => {
-    const response = await api.get('/tasks/statistics/')
-    return response.data
+    console.log('📊 [API] Buscando estatísticas do dashboard...')
+    try {
+      const response = await api.get('/tasks/statistics/')
+      console.log('✅ [API] Estatísticas recebidas:', response.data)
+      return response.data
+    } catch (error: any) {
+      console.error('❌ [API] Erro ao buscar estatísticas:', error)
+      console.error('📋 [API] Detalhes do erro:', {
+        status: error?.response?.status,
+        data: error?.response?.data,
+        url: error?.config?.url
+      })
+      throw error
+    }
   },
 
   getMotivationalQuote: async (): Promise<MotivationalQuote> => {
-    const response = await api.get('/tasks/motivacional/')
-    return response.data
+    console.log('💬 [API] Buscando frase motivacional...')
+    try {
+      const response = await api.get('/tasks/motivacional/')
+      console.log('✅ [API] Frase motivacional recebida:', response.data)
+      return response.data
+    } catch (error: any) {
+      console.error('❌ [API] Erro ao buscar frase motivacional:', error)
+      console.error('📋 [API] Detalhes do erro:', {
+        status: error?.response?.status,
+        data: error?.response?.data,
+        url: error?.config?.url
+      })
+      throw error
+    }
   },
 
   exportCSV: async (): Promise<Blob> => {

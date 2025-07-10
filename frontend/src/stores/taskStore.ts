@@ -253,17 +253,22 @@ export const useTaskStore = create<TaskState & TaskActions>()(
     },
 
     fetchQuote: async () => {
+      console.log('💬 [TaskStore] Iniciando busca de frase motivacional...')
       set((state) => {
         state.loading.quote = true
       })
 
       try {
+        console.log('🌐 [TaskStore] Chamando API para frase motivacional...')
         const quote = await tasksAPI.getMotivationalQuote()
+        console.log('✅ [TaskStore] Frase motivacional recebida:', quote)
         set((state) => {
           state.quote = quote
           state.loading.quote = false
         })
       } catch (error: any) {
+        console.error('❌ [TaskStore] Erro ao buscar frase motivacional:', error)
+        console.log('🔄 [TaskStore] Usando frase offline como fallback')
         set((state) => {
           state.loading.quote = false
           state.quote = {
