@@ -229,24 +229,37 @@ class TaskViewSet(viewsets.ModelViewSet):
         print("Usuario:", request.user)       
        
         try:
-            print("Tentativa 1: HTTPS com certificados atualizados...")
+            print("Tentativa 1: HTTPS com configuração SSL melhorada...")
             
-            
+            # Configuração mais robusta para SSL no Railway
             session = requests.Session()
             
+            # Headers mais completos para evitar bloqueios
+            session.headers.update({
+                'User-Agent': 'TaskApp/1.0 (Compatible Web App)',
+                'Accept': 'application/json',
+                'Accept-Encoding': 'gzip, deflate',
+                'Connection': 'keep-alive'
+            })
             
+            # Configuração SSL mais permissiva para Railway
             try:
+                import ssl
                 import certifi
+                # Usa certificados do certifi, mas com contexto mais permissivo
                 session.verify = certifi.where()
                 print(f"Usando certificados certifi: {certifi.where()}")
             except ImportError:
+                # Fallback para verificação SSL padrão
                 session.verify = True
                 print("Usando verificação SSL padrão")
             
             url = 'https://api.quotable.io/random'
-            response = session.get(url, timeout=10)
+            print(f"Fazendo requisição para: {url}")
+            response = session.get(url, timeout=15)  # Timeout maior
             
             print("Status code HTTPS:", response.status_code)
+            print("Headers da resposta:", dict(response.headers))
             
             if response.status_code == 200:
                 print("✅ HTTPS funcionou! Response:", response.text[:100], "..." if len(response.text) > 100 else "")
@@ -255,20 +268,67 @@ class TaskViewSet(viewsets.ModelViewSet):
                 return Response({
                     'content': data.get('content', ''),
                     'author': data.get('author', ''),
-                    'tag': 'inspiração',
+                    'tag': data.get('tags', ['inspiração'])[0] if data.get('tags') else 'inspiração',
                     'success': True,
-                    'source': 'HTTPS'
+                    'source': 'QUOTABLE_API',
+                    'api_id': data.get('_id', ''),
+                    'length': data.get('length', 0)
                 })
                 
         except requests.exceptions.SSLError as e:
-            print(f"❌ Erro SSL: {str(e)[:100]}...")
+            print(f"❌ Erro SSL detalhado: {str(e)}")
+            
+        except requests.exceptions.Timeout as e:
+            print(f"❌ Timeout na requisição: {str(e)}")
+            
+        except requests.exceptions.ConnectionError as e:
+            print(f"❌ Erro de conexão: {str(e)}")
             
         except Exception as e:
-            print(f"❌ Erro HTTPS: {type(e).__name__}: {str(e)[:100]}...")
+            print(f"❌ Erro HTTPS: {type(e).__name__}: {str(e)}")
         
-       
+        # Tentativa 2: HTTPS sem verificação SSL (para Railway)
         try:
-            print("Tentativa 2: HTTP como fallback...")
+            print("Tentativa 2: HTTPS sem verificação SSL...")
+            
+            import urllib3
+            urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+            
+            url = 'https://api.quotable.io/random'
+            response = requests.get(
+                url, 
+                timeout=15,
+                verify=False,  # Desabilita verificação SSL
+                headers={
+                    'User-Agent': 'TaskApp/1.0',
+                    'Accept': 'application/json'
+                }
+            )
+            
+            print("Status code HTTPS (sem SSL):", response.status_code)
+            
+            if response.status_code == 200:
+                print("✅ HTTPS sem SSL funcionou! Response:", response.text[:100], "..." if len(response.text) > 100 else "")
+                data = response.json()
+                
+                return Response({
+                    'content': data.get('content', ''),
+                    'author': data.get('author', ''),
+                    'tag': data.get('tags', ['inspiração'])[0] if data.get('tags') else 'inspiração',
+                    'success': True,
+                    'source': 'QUOTABLE_API_NO_SSL',
+                    'api_id': data.get('_id', ''),
+                    'length': data.get('length', 0)
+                })
+            else:
+                print(f"❌ Resposta não 200 da API: {response.status_code}")
+                
+        except Exception as e:
+            print(f"❌ Erro HTTPS sem SSL: {type(e).__name__}: {str(e)}")
+       
+        # Tentativa 3: HTTP como último recurso
+        try:
+            print("Tentativa 3: HTTP como fallback...")
             
             url = 'http://api.quotable.io/random'
             response = requests.get(url, timeout=10)
@@ -282,15 +342,15 @@ class TaskViewSet(viewsets.ModelViewSet):
                 return Response({
                     'content': data.get('content', ''),
                     'author': data.get('author', ''),
-                    'tag': 'inspiração',
+                    'tag': data.get('tags', ['inspiração'])[0] if data.get('tags') else 'inspiração',
                     'success': True,
-                    'source': 'HTTP'
+                    'source': 'QUOTABLE_API_HTTP'
                 })
             else:
-                print(f"❌ Resposta não 200 da API: {response.status_code}")
+                print(f"❌ Resposta não 200 da API HTTP: {response.status_code}")
                 
         except Exception as e:
-            print(f"❌ Erro HTTP: {type(e).__name__}: {str(e)[:100]}...")
+            print(f"❌ Erro HTTP: {type(e).__name__}: {str(e)}")
         
         
         print("⚠️ Usando frase local como último recurso")
