@@ -166,7 +166,6 @@ SIMPLE_JWT = {
 # CORS Configuration - Permitir Railway, Vercel e localhost
 if not DEBUG:
     CORS_ALLOWED_ORIGINS = [
-        "https://app-tarefas-insights-bif9144z0-edvaldo-limas-projects.vercel.app",
         "https://app-tarefas-insights-cj84dicaz-edvaldo-limas-projects.vercel.app",
         "https://app-tarefas-insights.vercel.app",
         "https://app-tarefas-insights-git-main.vercel.app",
