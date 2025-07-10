@@ -6,13 +6,16 @@ Este script deve ser executado DENTRO do ambiente do Railway
 
 import os
 import sys
-import django
-from django.conf import settings
-from django.contrib.auth.models import User
 
-# Configurar Django
+# PRIMEIRO: Configurar o Django settings ANTES de qualquer import
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
+
+# SEGUNDO: Configurar o Django
+import django
 django.setup()
+
+# TERCEIRO: Agora sim importar os modelos
+from django.contrib.auth.models import User
 
 def create_superuser():
     """Cria superusuário se não existir"""
@@ -57,4 +60,11 @@ def create_superuser():
         print(f"   - {u.username} (super: {u.is_superuser}, ativo: {u.is_active})")
 
 if __name__ == "__main__":
-    create_superuser() 
+    try:
+        create_superuser()
+        print("\n🎉 Script executado com sucesso!")
+    except Exception as e:
+        print(f"\n❌ Erro no script: {e}")
+        import traceback
+        traceback.print_exc()
+        sys.exit(1) 
