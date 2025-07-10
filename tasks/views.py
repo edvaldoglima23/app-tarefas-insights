@@ -226,131 +226,175 @@ class TaskViewSet(viewsets.ModelViewSet):
         Tenta HTTPS primeiro com certificados atualizados, fallback para HTTP.
         """
         
-        # Quotable API - Solução otimizada para Railway
+        # Quotable API - Múltiplas estratégias AGRESSIVAS para funcionar
+        
+        # Estratégia 1: HTTPX com configuração agressiva de rede
         try:
-            # Tentativa rápida e eficiente com timeout reduzido
-            import urllib3
-            urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+            import httpx
+            import ssl
             
-            # Headers simples e profissionais
+            # Configuração SSL menos restritiva
+            ssl_context = ssl.create_default_context()
+            ssl_context.check_hostname = False
+            ssl_context.verify_mode = ssl.CERT_NONE
+            
+            # Headers que imitam navegador real
             headers = {
-                'User-Agent': 'TaskApp/1.0 (Railway)',
-                'Accept': 'application/json'
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+                'Accept': 'application/json, text/plain, */*',
+                'Accept-Language': 'en-US,en;q=0.9',
+                'Accept-Encoding': 'gzip, deflate, br',
+                'DNT': '1',
+                'Connection': 'keep-alive',
+                'Upgrade-Insecure-Requests': '1',
             }
             
-            # Timeout baixo para evitar timeout do frontend (5 segundos)
-            response = requests.get(
-                'https://api.quotable.io/random',
-                headers=headers,
-                timeout=5,
-                verify=False
-            )
+            # Timeout curto para primeira tentativa
+            with httpx.Client(verify=False, timeout=3.0) as client:
+                response = client.get('https://api.quotable.io/random', headers=headers)
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    print(f"✅ SUCESSO! Quotable API HTTPX: {data.get('content', '')[:30]}...")
+                    
+                    return Response({
+                        'content': data.get('content', ''),
+                        'author': data.get('author', ''),
+                        'tag': data.get('tags', ['Famous Quotes'])[0] if data.get('tags') else 'inspiração',
+                        'success': True,
+                        'source': 'QUOTABLE_API_HTTPX',
+                        'api_id': data.get('_id', ''),
+                        'length': data.get('length', 0)
+                    })
+                    
+        except Exception as e:
+            print(f"HTTPX falhou: {e}")
+
+        # Estratégia 2: Requests com Session e configuração agressiva
+        try:
+            session = requests.Session()
+            session.headers.update({
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                'Accept': 'application/json',
+                'Connection': 'keep-alive'
+            })
+            
+            # Desabilitar SSL totalmente
+            session.verify = False
+            import urllib3
+            urllib3.disable_warnings()
+            
+            # Tentativa com timeout muito baixo
+            response = session.get('https://api.quotable.io/random', timeout=3)
             
             if response.status_code == 200:
                 data = response.json()
-                print(f"✅ Quotable API funcionou! Frase: {data.get('content', '')[:50]}...")
+                print(f"✅ SUCESSO! Quotable API Requests: {data.get('content', '')[:30]}...")
                 
                 return Response({
                     'content': data.get('content', ''),
                     'author': data.get('author', ''),
                     'tag': data.get('tags', ['Famous Quotes'])[0] if data.get('tags') else 'inspiração',
                     'success': True,
-                    'source': 'QUOTABLE_API',
+                    'source': 'QUOTABLE_API_REQUESTS',
                     'api_id': data.get('_id', ''),
                     'length': data.get('length', 0)
                 })
                 
         except Exception as e:
-            print(f"❌ Quotable API falhou: {type(e).__name__}: {str(e)}")
+            print(f"Requests falhou: {e}")
 
-        # Como a Quotable API falhou, usar proxy para acessá-la
-        try:
-            print("🔄 Tentando Quotable API via proxy...")
-            
-            # Usar proxy público para acessar especificamente a Quotable API
-            proxy_url = 'https://api.allorigins.win/get'
-            params = {'url': 'https://api.quotable.io/random'}
-            
-            response = requests.get(proxy_url, params=params, timeout=8, verify=False)
-            
-            if response.status_code == 200:
-                proxy_data = response.json()
-                
-                if 'contents' in proxy_data:
-                    import json
-                    quotable_data = json.loads(proxy_data['contents'])
-                    
-                    if 'content' in quotable_data and 'author' in quotable_data:
-                        print(f"✅ Quotable via proxy funcionou! Frase: {quotable_data.get('content', '')[:50]}...")
-                        
-                        return Response({
-                            'content': quotable_data.get('content', ''),
-                            'author': quotable_data.get('author', ''),
-                            'tag': quotable_data.get('tags', ['Famous Quotes'])[0] if quotable_data.get('tags') else 'inspiração',
-                            'success': True,
-                            'source': 'QUOTABLE_API_PROXY',
-                            'api_id': quotable_data.get('_id', ''),
-                            'length': quotable_data.get('length', 0)
-                        })
-                        
-        except Exception as e:
-            print(f"❌ Quotable via proxy falhou: {type(e).__name__}: {str(e)}")
-
-        # Último recurso: Cache local de frases REAIS da Quotable API
-        print("⚠️ Usando cache local da Quotable API")
-        
-        # Estas são frases REAIS copiadas diretamente da API Quotable
-        quotable_cache = [
-            {
-                "_id": "YbIkDkitaO",
-                "content": "Life is what happens when you're busy making other plans.",
-                "author": "John Lennon",
-                "tags": ["Famous Quotes"],
-                "length": 58
-            },
-            {
-                "_id": "ZvmwOvR0QI", 
-                "content": "The only way to do great work is to love what you do.",
-                "author": "Steve Jobs",
-                "tags": ["Famous Quotes"],
-                "length": 54
-            },
-            {
-                "_id": "kPPCBjlg",
-                "content": "In the end, we will remember not the words of our enemies, but the silence of our friends.",
-                "author": "Martin Luther King Jr.",
-                "tags": ["Famous Quotes"],
-                "length": 89
-            },
-            {
-                "_id": "EhPdlmjZ9ON",
-                "content": "Intuition will tell the thinking mind where to look next.",
-                "author": "Jonas Salk",
-                "tags": ["Famous Quotes"],
-                "length": 57
-            },
-            {
-                "_id": "mEOw7jZ4OY",
-                "content": "Success is not final, failure is not fatal: it is the courage to continue that counts.",
-                "author": "Winston Churchill",
-                "tags": ["Famous Quotes"],
-                "length": 83
-            }
+        # Estratégia 3: Via múltiplos proxies CORS
+        proxies = [
+            'https://api.allorigins.win/get',
+            'https://cors-anywhere.herokuapp.com/https://api.quotable.io/random',
+            'https://corsproxy.io/?https://api.quotable.io/random'
         ]
         
-        import random
-        selected_quote = random.choice(quotable_cache)
+        for i, proxy in enumerate(proxies, 1):
+            try:
+                print(f"Tentando proxy {i}...")
+                
+                if 'allorigins' in proxy:
+                    # AllOrigins
+                    response = requests.get(proxy, params={'url': 'https://api.quotable.io/random'}, timeout=3)
+                    if response.status_code == 200:
+                        proxy_data = response.json()
+                        if 'contents' in proxy_data:
+                            import json
+                            data = json.loads(proxy_data['contents'])
+                else:
+                    # Outros proxies
+                    response = requests.get(proxy, timeout=3)
+                    if response.status_code == 200:
+                        data = response.json()
+                
+                if 'content' in data and 'author' in data:
+                    print(f"✅ SUCESSO! Quotable via proxy {i}: {data.get('content', '')[:30]}...")
+                    
+                    return Response({
+                        'content': data.get('content', ''),
+                        'author': data.get('author', ''),
+                        'tag': data.get('tags', ['Famous Quotes'])[0] if data.get('tags') else 'inspiração',
+                        'success': True,
+                        'source': f'QUOTABLE_API_PROXY_{i}',
+                        'api_id': data.get('_id', ''),
+                        'length': data.get('length', 0)
+                    })
+                    
+            except Exception as e:
+                print(f"Proxy {i} falhou: {e}")
+                continue
+
+        # Estratégia 4: IPv4 direto (resolver DNS manualmente)
+        try:
+            import socket
+            
+            # IPs conhecidos da Quotable API (CloudFlare)
+            quotable_ips = ['104.21.7.172', '172.67.173.114', '104.21.6.172']
+            
+            for ip in quotable_ips:
+                try:
+                    # Conectar diretamente via IP
+                    url = f'https://{ip}/random'
+                    headers = {
+                        'Host': 'api.quotable.io',
+                        'User-Agent': 'TaskApp/1.0',
+                        'Accept': 'application/json'
+                    }
+                    
+                    response = requests.get(url, headers=headers, timeout=2, verify=False)
+                    
+                    if response.status_code == 200:
+                        data = response.json()
+                        print(f"✅ SUCESSO! Quotable via IP {ip}: {data.get('content', '')[:30]}...")
+                        
+                        return Response({
+                            'content': data.get('content', ''),
+                            'author': data.get('author', ''),
+                            'tag': data.get('tags', ['Famous Quotes'])[0] if data.get('tags') else 'inspiração',
+                            'success': True,
+                            'source': 'QUOTABLE_API_IP',
+                            'api_id': data.get('_id', ''),
+                            'length': data.get('length', 0)
+                        })
+                        
+                except Exception as e:
+                    print(f"IP {ip} falhou: {e}")
+                    continue
+                    
+        except Exception as e:
+            print(f"Estratégia IP falhou: {e}")
+
+        # ÚLTIMO RECURSO: Retornar erro para forçar tentativa do frontend
+        print("❌ TODAS as estratégias falharam - Railway não consegue acessar Quotable API")
         
         return Response({
-            'content': selected_quote['content'],
-            'author': selected_quote['author'],
-            'tag': selected_quote['tags'][0],
-            'success': True,
-            'source': 'QUOTABLE_API_CACHE',
-            'api_id': selected_quote['_id'],
-            'length': selected_quote['length'],
-            'message': 'Cache local da Quotable API'
-        })
+            'error': 'Quotable API inacessível no Railway',
+            'success': False,
+            'source': 'ERROR',
+            'message': 'Limitações de rede do Railway impedem acesso à API externa'
+        }, status=503)
     
     @action(detail=False, methods=['get'])
     def export_csv(self, request):
