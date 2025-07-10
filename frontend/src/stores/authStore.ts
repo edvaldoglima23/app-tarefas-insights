@@ -24,7 +24,7 @@ export const useAuthStore = create<AuthState & AuthActions>()(
     (set) => ({
       user: null,
       token: null,
-      isAuthenticated: false, // Sempre começa como false
+      isAuthenticated: false,
       loading: false,
       error: null,
 
@@ -78,7 +78,7 @@ export const useAuthStore = create<AuthState & AuthActions>()(
       checkAuthStatus: async () => {
         const token = localStorage.getItem('token')
         
-        // Se não tem token, não está autenticado
+        
         if (!token) {
           set({
             user: null,
@@ -90,8 +90,8 @@ export const useAuthStore = create<AuthState & AuthActions>()(
         }
 
         try {
-          // Tenta fazer uma requisição para verificar se o token é válido
-          const response = await fetch('https://web-production-02fc5.up.railway.app/api/auth/verify/', {
+          
+          const response = await fetch('https://web-production-02fc5.up.railway.app/api/token/verify/', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
@@ -100,14 +100,14 @@ export const useAuthStore = create<AuthState & AuthActions>()(
           })
           
           if (response.ok) {
-            // Token válido
+            
             set({
               token,
               isAuthenticated: true,
               error: null
             })
           } else {
-            // Token inválido
+            
             localStorage.removeItem('token')
             localStorage.removeItem('refresh')
             set({
@@ -118,7 +118,7 @@ export const useAuthStore = create<AuthState & AuthActions>()(
             })
           }
         } catch (error) {
-          // Erro de conexão - por segurança, considera não autenticado
+          
           localStorage.removeItem('token')
           localStorage.removeItem('refresh')
           set({
@@ -135,7 +135,7 @@ export const useAuthStore = create<AuthState & AuthActions>()(
       partialize: (state) => ({ 
         user: state.user,
         token: state.token
-        // NÃO persiste isAuthenticated - sempre verifica
+        
       })
     }
   )
