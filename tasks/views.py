@@ -228,129 +228,101 @@ class TaskViewSet(viewsets.ModelViewSet):
         print("=== FUNÇÃO MOTIVACIONAL CHAMADA ===")
         print("Usuario:", request.user)       
        
+        # Tentativa 1: API alternativa ZenQuotes (mais confiável)
         try:
-            print("Tentativa 1: HTTPS com configuração SSL melhorada...")
+            print("Tentativa 1: API alternativa ZenQuotes...")
             
-            # Configuração mais robusta para SSL no Railway
             session = requests.Session()
-            
-            # Headers mais completos para evitar bloqueios
             session.headers.update({
-                'User-Agent': 'TaskApp/1.0 (Compatible Web App)',
-                'Accept': 'application/json',
-                'Accept-Encoding': 'gzip, deflate',
-                'Connection': 'keep-alive'
+                'User-Agent': 'TaskApp/1.0',
+                'Accept': 'application/json'
             })
             
-            # Configuração SSL mais permissiva para Railway
-            try:
-                import ssl
-                import certifi
-                # Usa certificados do certifi, mas com contexto mais permissivo
-                session.verify = certifi.where()
-                print(f"Usando certificados certifi: {certifi.where()}")
-            except ImportError:
-                # Fallback para verificação SSL padrão
-                session.verify = True
-                print("Usando verificação SSL padrão")
-            
-            url = 'https://api.quotable.io/random'
+            url = 'https://zenquotes.io/api/random'
             print(f"Fazendo requisição para: {url}")
-            response = session.get(url, timeout=15)  # Timeout maior
+            response = session.get(url, timeout=10, verify=False)
             
-            print("Status code HTTPS:", response.status_code)
-            print("Headers da resposta:", dict(response.headers))
+            print("Status code ZenQuotes:", response.status_code)
             
             if response.status_code == 200:
-                print("✅ HTTPS funcionou! Response:", response.text[:100], "..." if len(response.text) > 100 else "")
+                print("✅ ZenQuotes funcionou! Response:", response.text[:100], "..." if len(response.text) > 100 else "")
                 data = response.json()
                 
-                return Response({
-                    'content': data.get('content', ''),
-                    'author': data.get('author', ''),
-                    'tag': data.get('tags', ['inspiração'])[0] if data.get('tags') else 'inspiração',
-                    'success': True,
-                    'source': 'QUOTABLE_API',
-                    'api_id': data.get('_id', ''),
-                    'length': data.get('length', 0)
-                })
+                # ZenQuotes retorna uma lista com um item
+                if isinstance(data, list) and len(data) > 0:
+                    quote = data[0]
+                    return Response({
+                        'content': quote.get('q', '').strip(),
+                        'author': quote.get('a', '').strip(),
+                        'tag': 'inspiração',
+                        'success': True,
+                        'source': 'ZENQUOTES_API'
+                    })
                 
-        except requests.exceptions.SSLError as e:
-            print(f"❌ Erro SSL detalhado: {str(e)}")
-            
-        except requests.exceptions.Timeout as e:
-            print(f"❌ Timeout na requisição: {str(e)}")
-            
-        except requests.exceptions.ConnectionError as e:
-            print(f"❌ Erro de conexão: {str(e)}")
-            
         except Exception as e:
-            print(f"❌ Erro HTTPS: {type(e).__name__}: {str(e)}")
-        
-        # Tentativa 2: HTTPS sem verificação SSL (para Railway)
+            print(f"❌ Erro ZenQuotes: {type(e).__name__}: {str(e)}")
+
+        # Tentativa 2: Quotable com IP direto (contornando DNS)
         try:
-            print("Tentativa 2: HTTPS sem verificação SSL...")
+            print("Tentativa 2: Quotable via IP direto...")
             
-            import urllib3
-            urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-            
-            url = 'https://api.quotable.io/random'
-            response = requests.get(
-                url, 
-                timeout=15,
-                verify=False,  # Desabilita verificação SSL
-                headers={
+            # IP do api.quotable.io (pode mudar, mas é um teste)
+            import socket
+            try:
+                ip = socket.gethostbyname('api.quotable.io')
+                print(f"IP resolvido para api.quotable.io: {ip}")
+                url = f'https://{ip}/random'
+                
+                session = requests.Session()
+                session.headers.update({
+                    'Host': 'api.quotable.io',  # Header Host obrigatório
                     'User-Agent': 'TaskApp/1.0',
                     'Accept': 'application/json'
-                }
-            )
-            
-            print("Status code HTTPS (sem SSL):", response.status_code)
-            
-            if response.status_code == 200:
-                print("✅ HTTPS sem SSL funcionou! Response:", response.text[:100], "..." if len(response.text) > 100 else "")
-                data = response.json()
-                
-                return Response({
-                    'content': data.get('content', ''),
-                    'author': data.get('author', ''),
-                    'tag': data.get('tags', ['inspiração'])[0] if data.get('tags') else 'inspiração',
-                    'success': True,
-                    'source': 'QUOTABLE_API_NO_SSL',
-                    'api_id': data.get('_id', ''),
-                    'length': data.get('length', 0)
                 })
-            else:
-                print(f"❌ Resposta não 200 da API: {response.status_code}")
+                
+                response = session.get(url, timeout=10, verify=False)
+                
+                if response.status_code == 200:
+                    print("✅ Quotable via IP funcionou!")
+                    data = response.json()
+                    
+                    return Response({
+                        'content': data.get('content', ''),
+                        'author': data.get('author', ''),
+                        'tag': data.get('tags', ['inspiração'])[0] if data.get('tags') else 'inspiração',
+                        'success': True,
+                        'source': 'QUOTABLE_VIA_IP'
+                    })
+                    
+            except socket.gaierror:
+                print("❌ Não foi possível resolver DNS para IP")
                 
         except Exception as e:
-            print(f"❌ Erro HTTPS sem SSL: {type(e).__name__}: {str(e)}")
-       
-        # Tentativa 3: HTTP como último recurso
+            print(f"❌ Erro Quotable via IP: {type(e).__name__}: {str(e)}")
+
+        # Tentativa 3: API JsonQuotes
         try:
-            print("Tentativa 3: HTTP como fallback...")
+            print("Tentativa 3: API JsonQuotes...")
             
-            url = 'http://api.quotable.io/random'
-            response = requests.get(url, timeout=10)
-            
-            print("Status code HTTP:", response.status_code)
+            url = 'https://api.jsonquotes.com/random'
+            response = requests.get(url, timeout=10, verify=False)
             
             if response.status_code == 200:
-                print("✅ HTTP funcionou! Response:", response.text[:100], "..." if len(response.text) > 100 else "")
+                print("✅ JsonQuotes funcionou!")
                 data = response.json()
                 
                 return Response({
-                    'content': data.get('content', ''),
+                    'content': data.get('quote', ''),
                     'author': data.get('author', ''),
-                    'tag': data.get('tags', ['inspiração'])[0] if data.get('tags') else 'inspiração',
+                    'tag': 'inspiração',
                     'success': True,
-                    'source': 'QUOTABLE_API_HTTP'
+                    'source': 'JSONQUOTES_API'
                 })
-            else:
-                print(f"❌ Resposta não 200 da API HTTP: {response.status_code}")
                 
         except Exception as e:
-            print(f"❌ Erro HTTP: {type(e).__name__}: {str(e)}")
+            print(f"❌ Erro JsonQuotes: {type(e).__name__}: {str(e)}")
+        
+        
         
         
         print("⚠️ Usando frase local como último recurso")
