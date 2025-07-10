@@ -2,7 +2,7 @@
 
 > **Aplicação Full-Stack profissional para gerenciamento inteligente de tarefas com análise de produtividade e motivação**
 
-[![Deploy Status](https://img.shields.io/badge/Frontend-Live%20on%20Vercel-success?style=flat-square&logo=vercel)](https://app-tarefas-insights-cj84dicaz-edvaldo-limas-projects.vercel.app/)
+[![Deploy Status](https://img.shields.io/badge/Frontend-Live%20on%20Vercel-success?style=flat-square&logo=vercel)](https://app-tarefas-insights.vercel.app/)
 [![API Status](https://img.shields.io/badge/Backend-Live%20on%20Railway-success?style=flat-square&logo=railway)](https://web-production-02fc5.up.railway.app/api/)
 ![Next.js](https://img.shields.io/badge/Next.js-15.3.5-black?style=flat-square&logo=next.js)
 ![Django](https://img.shields.io/badge/Django-5.2.4-green?style=flat-square&logo=django)
@@ -11,7 +11,7 @@
 
 ## 🚀 **URLs da Aplicação**
 
-- **🌐 Frontend**: [https://app-tarefas-insights-cj84dicaz-edvaldo-limas-projects.vercel.app/](https://app-tarefas-insights-cj84dicaz-edvaldo-limas-projects.vercel.app/)
+- **🌐 Frontend**: [https://app-tarefas-insights.vercel.app/](https://app-tarefas-insights.vercel.app/)
 - **⚡ API Backend**: [https://web-production-02fc5.up.railway.app/api/](https://web-production-02fc5.up.railway.app/api/)
 - **🔧 Admin Django**: [https://web-production-02fc5.up.railway.app/admin/](https://web-production-02fc5.up.railway.app/admin/)
 
