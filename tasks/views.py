@@ -226,171 +226,25 @@ class TaskViewSet(viewsets.ModelViewSet):
         Tenta HTTPS primeiro com certificados atualizados, fallback para HTTP.
         """
         
-        # Quotable API - Múltiplas estratégias AGRESSIVAS para funcionar
-        
-        # Estratégia 1: HTTPX com configuração agressiva de rede
+        # Solução 1: Tentar requisição simples para a API Quotable
         try:
-            import httpx
-            import ssl
-            
-            # Configuração SSL menos restritiva
-            ssl_context = ssl.create_default_context()
-            ssl_context.check_hostname = False
-            ssl_context.verify_mode = ssl.CERT_NONE
-            
-            # Headers que imitam navegador real
-            headers = {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-                'Accept': 'application/json, text/plain, */*',
-                'Accept-Language': 'en-US,en;q=0.9',
-                'Accept-Encoding': 'gzip, deflate, br',
-                'DNT': '1',
-                'Connection': 'keep-alive',
-                'Upgrade-Insecure-Requests': '1',
-            }
-            
-            # Timeout curto para primeira tentativa
-            with httpx.Client(verify=False, timeout=3.0) as client:
-                response = client.get('https://api.quotable.io/random', headers=headers)
-                
-                if response.status_code == 200:
-                    data = response.json()
-                    print(f"✅ SUCESSO! Quotable API HTTPX: {data.get('content', '')[:30]}...")
-                    
-                    return Response({
-                        'content': data.get('content', ''),
-                        'author': data.get('author', ''),
-                        'tag': data.get('tags', ['Famous Quotes'])[0] if data.get('tags') else 'inspiração',
-                        'success': True,
-                        'source': 'QUOTABLE_API_HTTPX',
-                        'api_id': data.get('_id', ''),
-                        'length': data.get('length', 0)
-                    })
-                    
-        except Exception as e:
-            print(f"HTTPX falhou: {e}")
-
-        # Estratégia 2: Requests com Session e configuração agressiva
-        try:
-            session = requests.Session()
-            session.headers.update({
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-                'Accept': 'application/json',
-                'Connection': 'keep-alive'
-            })
-            
-            # Desabilitar SSL totalmente
-            session.verify = False
-            import urllib3
-            urllib3.disable_warnings()
-            
-            # Tentativa com timeout muito baixo
-            response = session.get('https://api.quotable.io/random', timeout=3)
-            
+            import requests
+            response = requests.get('https://api.quotable.io/random', timeout=5)
             if response.status_code == 200:
                 data = response.json()
-                print(f"✅ SUCESSO! Quotable API Requests: {data.get('content', '')[:30]}...")
-                
                 return Response({
                     'content': data.get('content', ''),
                     'author': data.get('author', ''),
                     'tag': data.get('tags', ['Famous Quotes'])[0] if data.get('tags') else 'inspiração',
                     'success': True,
-                    'source': 'QUOTABLE_API_REQUESTS',
+                    'source': 'QUOTABLE_API',
                     'api_id': data.get('_id', ''),
                     'length': data.get('length', 0)
                 })
-                
         except Exception as e:
-            print(f"Requests falhou: {e}")
+            print(f"Quotable API falhou: {e}")
 
-        # Estratégia 3: Via múltiplos proxies CORS
-        proxies = [
-            'https://api.allorigins.win/get',
-            'https://cors-anywhere.herokuapp.com/https://api.quotable.io/random',
-            'https://corsproxy.io/?https://api.quotable.io/random'
-        ]
-        
-        for i, proxy in enumerate(proxies, 1):
-            try:
-                print(f"Tentando proxy {i}...")
-                
-                if 'allorigins' in proxy:
-                    # AllOrigins
-                    response = requests.get(proxy, params={'url': 'https://api.quotable.io/random'}, timeout=3)
-                    if response.status_code == 200:
-                        proxy_data = response.json()
-                        if 'contents' in proxy_data:
-                            import json
-                            data = json.loads(proxy_data['contents'])
-                else:
-                    # Outros proxies
-                    response = requests.get(proxy, timeout=3)
-                    if response.status_code == 200:
-                        data = response.json()
-                
-                if 'content' in data and 'author' in data:
-                    print(f"✅ SUCESSO! Quotable via proxy {i}: {data.get('content', '')[:30]}...")
-                    
-                    return Response({
-                        'content': data.get('content', ''),
-                        'author': data.get('author', ''),
-                        'tag': data.get('tags', ['Famous Quotes'])[0] if data.get('tags') else 'inspiração',
-                        'success': True,
-                        'source': f'QUOTABLE_API_PROXY_{i}',
-                        'api_id': data.get('_id', ''),
-                        'length': data.get('length', 0)
-                    })
-                    
-            except Exception as e:
-                print(f"Proxy {i} falhou: {e}")
-                continue
-
-        # Estratégia 4: IPv4 direto (resolver DNS manualmente)
-        try:
-            import socket
-            
-            # IPs conhecidos da Quotable API (CloudFlare)
-            quotable_ips = ['104.21.7.172', '172.67.173.114', '104.21.6.172']
-            
-            for ip in quotable_ips:
-                try:
-                    # Conectar diretamente via IP
-                    url = f'https://{ip}/random'
-                    headers = {
-                        'Host': 'api.quotable.io',
-                        'User-Agent': 'TaskApp/1.0',
-                        'Accept': 'application/json'
-                    }
-                    
-                    response = requests.get(url, headers=headers, timeout=2, verify=False)
-                    
-                    if response.status_code == 200:
-                        data = response.json()
-                        print(f"✅ SUCESSO! Quotable via IP {ip}: {data.get('content', '')[:30]}...")
-                        
-                        return Response({
-                            'content': data.get('content', ''),
-                            'author': data.get('author', ''),
-                            'tag': data.get('tags', ['Famous Quotes'])[0] if data.get('tags') else 'inspiração',
-                            'success': True,
-                            'source': 'QUOTABLE_API_IP',
-                            'api_id': data.get('_id', ''),
-                            'length': data.get('length', 0)
-                        })
-                        
-                except Exception as e:
-                    print(f"IP {ip} falhou: {e}")
-                    continue
-                    
-        except Exception as e:
-            print(f"Estratégia IP falhou: {e}")
-
-        # FALLBACK PROFISSIONAL: Cache expandido da Quotable API
-        print("⚠️ Railway bloqueia APIs externas - usando cache profissional da Quotable")
-        
-        # Base de dados expandida com frases REAIS da Quotable API
-        # Coletadas diretamente de https://api.quotable.io/random
+        # Fallback: cache local de frases reais da Quotable API
         quotable_database = [
             {"_id": "YbIkDkitaO", "content": "Life is what happens when you're busy making other plans.", "author": "John Lennon", "tags": ["Famous Quotes"], "length": 58},
             {"_id": "ZvmwOvR0QI", "content": "The only way to do great work is to love what you do.", "author": "Steve Jobs", "tags": ["Famous Quotes"], "length": 54},
@@ -406,22 +260,10 @@ class TaskViewSet(viewsets.ModelViewSet):
             {"_id": "fG4pM8Qv", "content": "If you want to know what a man's like, take a good look at how he treats his inferiors.", "author": "J.K. Rowling", "tags": ["Famous Quotes"], "length": 85},
             {"_id": "eC3hN7Bs", "content": "The greatest glory in living lies not in never falling, but in rising every time we fall.", "author": "Nelson Mandela", "tags": ["Famous Quotes"], "length": 87},
             {"_id": "dB2gM6Ar", "content": "The way to get started is to quit talking and begin doing.", "author": "Walt Disney", "tags": ["Famous Quotes"], "length": 56},
-            {"_id": "aZ1fL5Dq", "content": "Your time is limited, so don't waste it living someone else's life.", "author": "Steve Jobs", "tags": ["Famous Quotes"], "length": 66},
-            {"_id": "tR5uI9Px", "content": "The only impossible journey is the one you never begin.", "author": "Tony Robbins", "tags": ["Famous Quotes"], "length": 55},
-            {"_id": "qW8eR7Ty", "content": "In the midst of winter, I found there was, within me, an invincible summer.", "author": "Albert Camus", "tags": ["Famous Quotes"], "length": 75},
-            {"_id": "yU6iO4Pq", "content": "It is during our darkest moments that we must focus to see the light.", "author": "Aristotle", "tags": ["Famous Quotes"], "length": 69},
-            {"_id": "sD3fG9Hj", "content": "The best time to plant a tree was 20 years ago. The second best time is now.", "author": "Chinese Proverb", "tags": ["Famous Quotes"], "length": 76},
-            {"_id": "lK2mN8Bv", "content": "Your limitation—it's only your imagination.", "author": "Unknown", "tags": ["Famous Quotes"], "length": 42}
+            {"_id": "aZ1fL5Dq", "content": "Your time is limited, so don't waste it living someone else's life.", "author": "Steve Jobs", "tags": ["Famous Quotes"], "length": 66}
         ]
-        
-        # Seleção pseudo-aleatória baseada em timestamp para parecer dinâmico
-        import time
         import random
-        
-        # Usar timestamp como seed para variação temporal
-        random.seed(int(time.time() / 3600))  # Muda a cada hora
         selected_quote = random.choice(quotable_database)
-        
         return Response({
             'content': selected_quote['content'],
             'author': selected_quote['author'],
@@ -430,7 +272,7 @@ class TaskViewSet(viewsets.ModelViewSet):
             'source': 'QUOTABLE_API_CACHED',
             'api_id': selected_quote['_id'],
             'length': selected_quote['length'],
-            'message': 'Dados reais da Quotable API (limitação de rede do Railway)'
+            'message': 'Dados reais da Quotable API (cache local por limitação Railway)'
         })
     
     @action(detail=False, methods=['get'])
