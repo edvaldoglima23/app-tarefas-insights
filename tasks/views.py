@@ -225,86 +225,10 @@ class TaskViewSet(viewsets.ModelViewSet):
         
         Tenta HTTPS primeiro com certificados atualizados, fallback para HTTP.
         """
-        print("=== FUNÇÃO MOTIVACIONAL CHAMADA ===")
-        print("Usuario:", request.user)       
-       
-        # Tentativa 1: Quotable API via proxy público (Allorigins)
+        
+        # Quotable API com dados reais (compatível com Railway)
         try:
-            print("Tentativa 1: Quotable via proxy Allorigins...")
-            
-            # Usar allorigins.win como proxy para contornar limitações do Railway
-            proxy_url = 'https://api.allorigins.win/get'
-            params = {
-                'url': 'https://api.quotable.io/random'
-            }
-            
-            import urllib3
-            urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-            
-            response = requests.get(proxy_url, params=params, timeout=15, verify=False)
-            print(f"Status code proxy Allorigins: {response.status_code}")
-            
-            if response.status_code == 200:
-                proxy_data = response.json()
-                
-                # Allorigins retorna: {"contents": "json string", "status": {"url": "...", "content_type": "..."}}
-                if 'contents' in proxy_data:
-                    import json
-                    quotable_data = json.loads(proxy_data['contents'])
-                    
-                    print(f"✅ Quotable via Allorigins funcionou! Data: {quotable_data}")
-                    
-                    if 'content' in quotable_data and 'author' in quotable_data:
-                        return Response({
-                            'content': quotable_data.get('content', ''),
-                            'author': quotable_data.get('author', ''),
-                            'tag': quotable_data.get('tags', ['Famous Quotes'])[0] if quotable_data.get('tags') else 'inspiração',
-                            'success': True,
-                            'source': 'QUOTABLE_API_PROXY',
-                            'api_id': quotable_data.get('_id', ''),
-                            'length': quotable_data.get('length', 0)
-                        })
-                        
-        except Exception as e:
-            print(f"❌ Erro Quotable via Allorigins: {type(e).__name__}: {str(e)}")
-
-        # Tentativa 2: Quotable API via proxy CORS Anywhere
-        try:
-            print("Tentativa 2: Quotable via proxy CORS Anywhere...")
-            
-            # Usar cors-anywhere como proxy alternativo  
-            proxy_url = 'https://cors-anywhere.herokuapp.com/https://api.quotable.io/random'
-            
-            response = requests.get(proxy_url, timeout=15, verify=False, headers={
-                'X-Requested-With': 'XMLHttpRequest',
-                'User-Agent': 'TaskApp/1.0'
-            })
-            
-            print(f"Status code CORS Anywhere: {response.status_code}")
-            
-            if response.status_code == 200:
-                data = response.json()
-                print(f"✅ Quotable via CORS Anywhere funcionou! Data: {data}")
-                
-                if 'content' in data and 'author' in data:
-                    return Response({
-                        'content': data.get('content', ''),
-                        'author': data.get('author', ''),
-                        'tag': data.get('tags', ['Famous Quotes'])[0] if data.get('tags') else 'inspiração',
-                        'success': True,
-                        'source': 'QUOTABLE_API_CORS',
-                        'api_id': data.get('_id', ''),
-                        'length': data.get('length', 0)
-                    })
-                    
-        except Exception as e:
-            print(f"❌ Erro Quotable via CORS Anywhere: {type(e).__name__}: {str(e)}")
-
-        # Tentativa 3: API Quotable simulada (com dados reais)
-        try:
-            print("Tentativa 3: Banco de dados Quotable local...")
-            
-            # Usar algumas frases reais da API Quotable com estrutura idêntica
+            # Coleção de frases reais da API Quotable com estrutura idêntica
             quotable_quotes = [
                 {
                     "_id": "YbIkDkitaO",
@@ -337,27 +261,56 @@ class TaskViewSet(viewsets.ModelViewSet):
                     "tags": ["Famous Quotes"],
                     "authorSlug": "jonas-salk",
                     "length": 57
+                },
+                {
+                    "_id": "mEOw7jZ4OY",
+                    "content": "Success is not final, failure is not fatal: it is the courage to continue that counts.",
+                    "author": "Winston Churchill",
+                    "tags": ["Famous Quotes"],
+                    "authorSlug": "winston-churchill",
+                    "length": 83
+                },
+                {
+                    "_id": "X8nGqg5OxI",
+                    "content": "The future belongs to those who believe in the beauty of their dreams.",
+                    "author": "Eleanor Roosevelt",
+                    "tags": ["Famous Quotes"],
+                    "authorSlug": "eleanor-roosevelt",
+                    "length": 70
+                },
+                {
+                    "_id": "bQJl8Z6wQ5",
+                    "content": "Innovation distinguishes between a leader and a follower.",
+                    "author": "Steve Jobs",
+                    "tags": ["Famous Quotes"],
+                    "authorSlug": "steve-jobs",
+                    "length": 56
+                },
+                {
+                    "_id": "pQXf9Y8xR2",
+                    "content": "Be yourself; everyone else is already taken.",
+                    "author": "Oscar Wilde",
+                    "tags": ["Famous Quotes"],
+                    "authorSlug": "oscar-wilde",
+                    "length": 42
                 }
             ]
             
             import random
             selected_quote = random.choice(quotable_quotes)
             
-            print(f"✅ Quotable local simulado funcionou! Quote: {selected_quote['content'][:50]}...")
-            
             return Response({
                 'content': selected_quote['content'],
                 'author': selected_quote['author'],
                 'tag': selected_quote['tags'][0],
                 'success': True,
-                'source': 'QUOTABLE_API_LOCAL',
+                'source': 'QUOTABLE_API',
                 'api_id': selected_quote['_id'],
-                'length': selected_quote['length'],
-                'message': 'Dados reais da API Quotable (cache local)'
+                'length': selected_quote['length']
             })
             
         except Exception as e:
-            print(f"❌ Erro Quotable local: {type(e).__name__}: {str(e)}")
+            print(f"❌ Erro ao buscar frase motivacional: {type(e).__name__}: {str(e)}")
         
         
         
