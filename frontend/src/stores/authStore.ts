@@ -91,7 +91,7 @@ export const useAuthStore = create<AuthState & AuthActions>()(
 
         try {
           // Tenta fazer uma requisição para verificar se o token é válido
-          const response = await fetch('http://localhost:8000/api/auth/verify/', {
+          const response = await fetch('https://web-production-02fc5.up.railway.app/api/auth/verify/', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
