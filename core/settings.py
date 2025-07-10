@@ -163,18 +163,20 @@ SIMPLE_JWT = {
     'ROTATE_REFRESH_TOKENS': True,
 }
 
-# CORS Configuration - Permitir Railway, Vercel e localhost
+
 if not DEBUG:
     CORS_ALLOWED_ORIGINS = [
         "https://app-tarefas-insights-cj84dicaz-edvaldo-limas-projects.vercel.app",
         "https://app-tarefas-insights.vercel.app",
         "https://app-tarefas-insights-git-main.vercel.app",
         "https://app-tarefas-insights-edvaldoglima23.vercel.app",
+        
     ]
-    # Também permitir qualquer URL do padrão Vercel do projeto
+    
     CORS_ALLOW_ALL_ORIGINS = False
     CORS_ALLOWED_ORIGIN_REGEXES = [
-        r"^https://app-tarefas-insights-[a-z0-9]+-edvaldo-limas-projects\.vercel\.app$",
+        r"^https://app-tarefas-insights(-[a-z0-9]+)?(-[a-z0-9]+)?(-[a-z0-9]+)?(-[a-z0-9]+)?(-[a-z0-9]+)?(-[a-z0-9]+)?(-[a-z0-9]+)?(-[a-z0-9]+)?(-[a-z0-9]+)?(-[a-z0-9]+)?(-[a-z0-9]+)?-edvaldo-limas-projects\.vercel\.app$",
+        r"^https://app-tarefas-insights(-[a-z0-9]+)?\.vercel\.app$",
     ]
 else:
     CORS_ALLOWED_ORIGINS = [
