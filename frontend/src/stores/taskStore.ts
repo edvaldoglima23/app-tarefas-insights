@@ -130,7 +130,6 @@ export const useTaskStore = create<TaskState & TaskActions>()(
     },
 
     updateTask: async (id, updates) => {
-      console.log('updateTask chamado:', { id, updates })
       
       set((state) => {
         state.loading.updating = true
@@ -139,12 +138,10 @@ export const useTaskStore = create<TaskState & TaskActions>()(
 
       try {
         const updatedTask = await tasksAPI.update(id, updates)
-        console.log('Tarefa atualizada no backend:', updatedTask)
         
         set((state) => {
           const index = state.tasks.findIndex(task => task.id === id)
           if (index !== -1) {
-            console.log('Atualizando tarefa no estado local, índice:', index)
             state.tasks[index] = updatedTask
           } else {
             console.warn('Tarefa não encontrada no estado local!')
@@ -153,9 +150,7 @@ export const useTaskStore = create<TaskState & TaskActions>()(
         })
         
         await get().fetchStatistics()
-        console.log('Estatísticas atualizadas')
       } catch (error: any) {
-        console.error('Erro ao atualizar tarefa:', error)
         set((state) => {
           state.loading.updating = false
           state.error = error.message || 'Erro ao atualizar tarefa'
@@ -186,9 +181,7 @@ export const useTaskStore = create<TaskState & TaskActions>()(
     },
 
     toggleTaskStatus: async (task) => {
-      console.log('toggleTaskStatus chamado para tarefa:', task)
       const newStatus: 'pending' | 'completed' = task.status === 'pending' ? 'completed' : 'pending'
-      console.log('Mudando status de', task.status, 'para', newStatus)
       
       // Atualização otimista: atualiza o estado primeiro
       set((state) => {
@@ -202,9 +195,7 @@ export const useTaskStore = create<TaskState & TaskActions>()(
 
       try {
         // Depois confirma com o backend - apenas o status
-        console.log('📤 Enviando apenas status para API:', { status: newStatus })
         const updatedTask = await tasksAPI.update(task.id, { status: newStatus })
-        console.log('✅ Status atualizado no backend:', updatedTask)
         
         // Confirma a atualização com os dados do backend
         set((state) => {
@@ -217,9 +208,7 @@ export const useTaskStore = create<TaskState & TaskActions>()(
         
         // Atualiza estatísticas
         await get().fetchStatistics()
-        console.log('Status atualizado com sucesso!')
       } catch (error) {
-        console.error('Erro ao atualizar status, revertendo:', error)
         
         // Reverte a mudança otimista em caso de erro
         set((state) => {
@@ -253,22 +242,17 @@ export const useTaskStore = create<TaskState & TaskActions>()(
     },
 
     fetchQuote: async () => {
-      console.log('💬 [TaskStore] Iniciando busca de frase motivacional...')
       set((state) => {
         state.loading.quote = true
       })
 
       try {
-        console.log('🌐 [TaskStore] Chamando API para frase motivacional...')
         const quote = await tasksAPI.getMotivationalQuote()
-        console.log('✅ [TaskStore] Frase motivacional recebida:', quote)
         set((state) => {
           state.quote = quote
           state.loading.quote = false
         })
       } catch (error: any) {
-        console.error('❌ [TaskStore] Erro ao buscar frase motivacional:', error)
-        console.log('🔄 [TaskStore] Usando frase offline como fallback')
         set((state) => {
           state.loading.quote = false
           state.quote = {
@@ -317,13 +301,11 @@ export const useTaskStore = create<TaskState & TaskActions>()(
           state.loading.tasks = false
         })
         
-        console.log(`✓ CSV exported successfully: ${filename}`)
       } catch (error: any) {
         set((state) => {
           state.loading.tasks = false
           state.error = error.message || 'Erro ao exportar relatório CSV'
         })
-        console.error('Error exporting CSV:', error)
       }
     },
 

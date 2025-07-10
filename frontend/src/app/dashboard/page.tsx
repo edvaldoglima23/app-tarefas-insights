@@ -35,40 +35,29 @@ export default function DashboardPage() {
   }, [])
 
   const fetchStatistics = async () => {
-    console.log('📊 [Dashboard] Iniciando busca de estatísticas...')
     try {
       const token = localStorage.getItem('token')
       if (!token) {
-        console.log('⚠️ [Dashboard] Token não encontrado - redirecionando para login')
         router.push('/')
         return
       }
 
-      console.log('🌐 [Dashboard] Fazendo requisição para:', 'https://web-production-02fc5.up.railway.app/api/tasks/statistics/')
       const response = await axios.get('https://web-production-02fc5.up.railway.app/api/tasks/statistics/', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       })
 
-      console.log('✅ [Dashboard] Estatísticas recebidas:', response.data)
       setStats(response.data)
     } catch (err) {
-      console.error('❌ [Dashboard] Erro ao carregar estatísticas:', err)
       if (axios.isAxiosError(err)) {
-        console.error('📋 [Dashboard] Detalhes do erro:', {
-          status: err.response?.status,
-          data: err.response?.data,
-          url: err.config?.url
-        })
+        if (err.response?.status === 401) {
+          localStorage.removeItem('token')
+          router.push('/')
+        }
       }
       
       setError('Erro ao carregar estatísticas')
-      if (axios.isAxiosError(err) && err.response?.status === 401) {
-        console.log('🚪 [Dashboard] Token inválido - redirecionando para login')
-        localStorage.removeItem('token')
-        router.push('/')
-      }
     } finally {
       setLoading(false)
     }
@@ -82,19 +71,16 @@ export default function DashboardPage() {
   const [exportingCSV, setExportingCSV] = useState(false)
 
   const handleExportCSV = async () => {
-    console.log('📁 [Dashboard] Iniciando export CSV...')
     setExportingCSV(true)
     setError('')
     
     try {
       const token = localStorage.getItem('token')
       if (!token) {
-        console.log('⚠️ [Dashboard] Token não encontrado para export - redirecionando')
         router.push('/')
         return
       }
 
-      console.log('🌐 [Dashboard] Fazendo requisição de export para:', 'https://web-production-02fc5.up.railway.app/api/tasks/export_csv/')
       const response = await axios.get('https://web-production-02fc5.up.railway.app/api/tasks/export_csv/', {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -124,9 +110,7 @@ export default function DashboardPage() {
       // Limpar URL temporária
       window.URL.revokeObjectURL(url)
       
-      console.log(`✓ CSV exported successfully: ${filename}`)
     } catch (error) {
-      console.error('Error exporting CSV:', error)
       setError('Erro ao exportar relatório CSV')
     } finally {
       setExportingCSV(false)
