@@ -158,14 +158,14 @@ export default function TasksPage() {
         )}
 
         <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-6 mb-6">
-          <div className="flex justify-between items-center mb-4">
+          <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 mb-4">
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
               📋 Gerenciar Tarefas
             </h1>
-            <div className="flex gap-4">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
               <button
                 onClick={() => router.push('/dashboard')}
-                className="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600"
+                className="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600 text-center"
               >
                 📊 Dashboard
               </button>
@@ -182,13 +182,13 @@ export default function TasksPage() {
                     }, 100);
                   }
                 }}
-                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 text-center"
               >
                 {showForm ? 'Cancelar' : 'Nova Tarefa'}
               </button>
               <button
                 onClick={handleLogout}
-                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 text-center"
               >
                 Sair
               </button>

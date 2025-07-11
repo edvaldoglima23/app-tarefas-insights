@@ -136,30 +136,30 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-900 py-8">
       <div className="max-w-6xl mx-auto px-4">
-        {/* Header */}
+        
         <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-6 mb-6">
-          <div className="flex justify-between items-center">
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+          <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
               📊 Dashboard de Tarefas
             </h1>
-            <div className="flex gap-4">
+            <div className="flex gap-3 overflow-x-auto pb-2 md:pb-0 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-slate-600">
               <button
                 onClick={() => router.push('/tasks')}
-                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 whitespace-nowrap flex-shrink-0 transition-all duration-200"
               >
                 Ver Tarefas
               </button>
               <button
                 onClick={handleExportCSV}
                 disabled={exportingCSV}
-                className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 flex items-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 flex items-center gap-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap flex-shrink-0"
                 title="Exportar relatório completo de tarefas em formato CSV"
               >
                 {exportingCSV ? '⏳ Gerando...' : '📊 Exportar Relatório'}
               </button>
               <button
                 onClick={handleLogout}
-                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 whitespace-nowrap flex-shrink-0 transition-all duration-200"
               >
                 Sair
               </button>
